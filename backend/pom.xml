@@ -1,0 +1,134 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mycompany</groupId>
+    <artifactId>PROYECTOWEB</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <name>PROYECTOWEB</name>
+
+    <!-- ================================================== -->
+    <!-- CONFIGURACION DEL PROYECTO                         -->
+    <!-- ================================================== -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Estamos utilizando JDK 21 -->
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+    </properties>
+
+
+    <!-- ================================================== -->
+    <!-- DEPENDENCIAS                                       -->
+    <!-- ================================================== -->
+    <dependencies>
+
+        <!-- ================================================== -->
+        <!-- JERSEY - API REST                                  -->
+        <!-- ================================================== -->
+
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+            <version>2.41</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>2.41</version>
+        </dependency>
+
+
+        <!-- ================================================== -->
+        <!-- JSON                                               -->
+        <!-- Permite que Jersey convierta objetos Java a JSON   -->
+        <!-- ================================================== -->
+
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>2.41</version>
+        </dependency>
+
+
+        <!-- ================================================== -->
+        <!-- ORACLE JDBC                                        -->
+        <!-- Conexion Java -> Oracle                            -->
+        <!-- ================================================== -->
+
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc11</artifactId>
+            <version>23.3.0.23.09</version>
+        </dependency>
+
+
+        <!-- ================================================== -->
+        <!-- SERVLET API                                        -->
+        <!-- Tomcat proporciona esta dependencia                -->
+        <!-- ================================================== -->
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+
+    <!-- ================================================== -->
+    <!-- BUILD                                              -->
+    <!-- ================================================== -->
+
+    <build>
+
+        <!-- Nombre que tendrá la aplicación en Tomcat -->
+        <finalName>PROYECTOWEB</finalName>
+
+        <plugins>
+
+            <!-- ================================================== -->
+            <!-- COMPILADOR JAVA                                    -->
+            <!-- ================================================== -->
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+
+                <configuration>
+                    <release>21</release>
+                </configuration>
+            </plugin>
+
+
+            <!-- ================================================== -->
+            <!-- GENERAR WAR                                        -->
+            <!-- ================================================== -->
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>

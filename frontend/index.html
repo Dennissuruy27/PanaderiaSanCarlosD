@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PROYECTOWEB | Iniciar Sesión</title>
+
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="login-card">
+
+            <div class="login-header">
+                
+                <img src="img/logotipo.png" alt="Logotipo Universidad" class="logo">
+                
+                <h1>PANADERIA SAN CARLOS</h1>
+                <p>"El pan que Alegra tu Corazón"</p>
+            </div>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label for="usuario">Usuario</label>
+
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        placeholder="Ingrese su usuario"
+                        autocomplete="username"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="clave">Contraseña</label>
+
+                    <input
+                        type="password"
+                        id="clave"
+                        name="clave"
+                        placeholder="Ingrese su contraseña"
+                        autocomplete="current-password"
+                        required>
+                </div>
+
+                <div id="mensaje" class="mensaje"></div>
+
+                <button type="submit" id="btnLogin">
+                    Iniciar sesión
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script src="js/login.js"></script>
+
+</body>
+</html>
+

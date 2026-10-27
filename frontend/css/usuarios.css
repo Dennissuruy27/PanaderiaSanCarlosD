@@ -1,0 +1,694 @@
+/* =========================================
+   CONFIGURACIÓN GENERAL
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #a479396e;
+    color: #573923;
+    min-height: 100vh;
+}
+
+/* =========================================
+   ENCABEZADO
+========================================= */
+
+.encabezado {
+    background:#b6b0aabd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 14px 4%;
+    border-bottom: 1px solid #e8d7c5;
+}
+
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
+}
+
+.marca-texto h1 {
+    font-size: 23px;
+    color: #573923;
+}
+
+.marca-texto p {
+    margin-top: 5px;
+    font-size: 13px;
+    color: #8b5e3c;
+}
+
+/* =========================================
+   INFORMACIÓN DEL USUARIO
+========================================= */
+
+.usuario-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 14px;
+}
+
+.usuario-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    gap: 4px;
+}
+
+#nombreUsuario {
+    font-size: 14px;
+    font-weight: bold;
+    color: #573923;
+}
+
+#rolUsuario {
+    display: block;
+    font-size: 12px;
+    font-weight: normal;
+    color: #856a53;
+}
+
+#sucursalUsuario {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #76543d;
+    line-height: 1.4;
+}
+
+/* =========================================
+   BOTÓN CERRAR SESIÓN
+========================================= */
+
+#btnCerrarSesion {
+    background: #8b5e3c;
+    color: white;
+    border: none;
+    padding: 12px 17px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+#btnCerrarSesion:hover {
+    background: #69452e;
+}
+
+#btnCerrarSesion:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   MENÚ HORIZONTAL
+========================================= */
+
+.menu {
+    background: #fffaf3;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #e8d7c5;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #573923;
+    padding: 12px 16px;
+    border-radius: 7px;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.menu a:hover {
+    background: #ead8c5;
+}
+
+.menu a.activo {
+    background: #8b5e3c;
+    color: white;
+    font-weight: bold;
+}
+
+/* =========================================
+   CONTENIDO PRINCIPAL
+========================================= */
+
+.contenido {
+    width: 100%;
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 30px 24px 60px;
+}
+
+.titulo-modulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.etiqueta {
+    display: inline-block;
+    font-size: 13px;
+    color: #a36e43;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.titulo-modulo h2 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.titulo-modulo p {
+    color: #80634c;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* =========================================
+   BOTONES GENERALES
+========================================= */
+
+.btn-principal {
+    background: #8b5e3c;
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-principal:hover {
+    background: #69452e;
+}
+
+.btn-principal:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.btn-secundario {
+    background: white;
+    color: #573923;
+    border: 1px solid #8b5e3c;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-secundario:hover {
+    background: #ead8c5;
+}
+
+/* =========================================
+   PANEL DE FILTROS
+========================================= */
+
+.panel-filtros {
+    background: #fffaf3;
+    padding: 22px;
+    border-radius: 14px;
+    display: flex;
+    align-items: end;
+    gap: 18px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 14px rgba(80, 50, 25, 0.08);
+}
+
+.campo-busqueda {
+    flex: 2;
+    min-width: 200px;
+}
+
+.campo-filtro {
+    flex: 1;
+    min-width: 180px;
+}
+
+.panel-filtros label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.panel-filtros input,
+.panel-filtros select,
+.form-grupo input,
+.form-grupo select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d8c4ae;
+    border-radius: 8px;
+    background: white;
+    color: #573923;
+    font-size: 14px;
+    outline: none;
+}
+
+.panel-filtros input:focus,
+.panel-filtros select:focus,
+.form-grupo input:focus,
+.form-grupo select:focus {
+    border-color: #8b5e3c;
+    box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.12);
+}
+
+/* =========================================
+   PANEL DE TABLA
+========================================= */
+
+.panel-tabla {
+    background: #fffaf3;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(80, 50, 25, 0.08);
+}
+
+.tabla-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 24px;
+    border-bottom: 1px solid #ead8c5;
+}
+
+.tabla-encabezado h3 {
+    font-size: 19px;
+    margin-bottom: 6px;
+}
+
+.tabla-encabezado p {
+    font-size: 13px;
+    color: #80634c;
+}
+
+.contador {
+    background: #f0dfca;
+    color: #69452e;
+    padding: 8px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* =========================================
+   TABLA DE USUARIOS
+========================================= */
+
+.tabla-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+thead {
+    background: #f0dfca;
+}
+
+th {
+    text-align: left;
+    padding: 15px;
+    font-size: 13px;
+    color: #573923;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #eee1d2;
+    font-size: 13px;
+    color: #654b37;
+}
+
+tbody tr:hover {
+    background: #f7ecdf;
+}
+
+.sin-datos {
+    text-align: center;
+    padding: 35px;
+    color: #80634c;
+}
+
+/* =========================================
+   ESTADOS
+========================================= */
+
+.estado {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.estado-activo {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.estado-inactivo {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* =========================================
+   BOTONES DE ACCIONES
+========================================= */
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.acciones button {
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.acciones button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-editar {
+    background: #8b5e3c;
+}
+
+.btn-editar:hover {
+    background: #69452e;
+}
+
+.btn-desactivar {
+    background: #b3261e;
+}
+
+.btn-desactivar:hover {
+    background: #8f1e18;
+}
+
+.btn-reactivar {
+    background: #2e7d32;
+}
+
+.btn-reactivar:hover {
+    background: #1b5e20;
+}
+
+/* =========================================
+   MENSAJES
+========================================= */
+
+.mensaje {
+    padding: 0 24px;
+    font-size: 13px;
+}
+
+.mensaje:not(:empty) {
+    padding-top: 14px;
+    padding-bottom: 18px;
+}
+
+.mensaje.error,
+.mensaje-formulario.error {
+    color: #b91c1c;
+}
+
+.mensaje.exito,
+.mensaje-formulario.exito {
+    color: #166534;
+}
+
+/* =========================================
+   VENTANAS MODALES
+========================================= */
+
+.modal[hidden] {
+    display: none;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: rgba(35, 22, 13, 0.65);
+    overflow-y: auto;
+}
+
+.modal-contenido {
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fffaf3;
+    border-radius: 15px;
+    padding: 28px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.25);
+}
+
+.modal-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.modal-encabezado h2 {
+    color: #573923;
+    font-size: 23px;
+}
+
+.btn-cerrar {
+    background: transparent;
+    border: none;
+    color: #80634c;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.btn-cerrar:hover {
+    color: #991b1b;
+}
+
+/* =========================================
+   FORMULARIOS
+========================================= */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.form-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.campo-completo {
+    grid-column: 1 / -1;
+}
+
+.form-grupo label {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.form-grupo small {
+    color: #80634c;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.mensaje-formulario {
+    margin-top: 18px;
+    font-size: 13px;
+    min-height: 18px;
+}
+
+/* =========================================
+   BOTONES DE LOS MODALES
+========================================= */
+
+.modal-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-cancelar,
+.btn-guardar {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-cancelar {
+    background: #e8d7c5;
+    color: #573923;
+}
+
+.btn-cancelar:hover {
+    background: #d8c4ae;
+}
+
+.btn-guardar {
+    background: #8b5e3c;
+    color: white;
+}
+
+.btn-guardar:hover {
+    background: #69452e;
+}
+
+.btn-guardar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   PIE DE PÁGINA
+========================================= */
+
+.pie {
+    text-align: center;
+    padding: 20px;
+    color: #80634c;
+    font-size: 12px;
+}
+
+/* =========================================
+   RESPONSIVE - TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+    .panel-filtros {
+        flex-wrap: wrap;
+    }
+
+    .titulo-modulo h2 {
+        font-size: 26px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE - CELULAR
+========================================= */
+
+@media (max-width: 600px) {
+
+    .encabezado {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .marca {
+        flex-direction: column;
+    }
+
+    .usuario-header {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .usuario-info {
+        align-items: center;
+        text-align: center;
+    }
+
+    #sucursalUsuario {
+        font-size: 11px;
+    }
+
+    .contenido {
+        padding: 20px 14px 40px;
+    }
+
+    .titulo-modulo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .panel-filtros {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tabla-encabezado {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .modal-contenido {
+        padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-encabezado h2 {
+        font-size: 19px;
+    }
+
+    .modal-acciones {
+        flex-direction: column;
+    }
+
+    .btn-cancelar,
+    .btn-guardar {
+        width: 100%;
+    }
+}

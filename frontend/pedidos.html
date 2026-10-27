@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pedidos | Panadería San Carlos</title>
+
+    <link rel="stylesheet" href="css/pedidos.css">
+</head>
+
+<body>
+
+    <!-- ENCABEZADO PRINCIPAL -->
+    <header class="encabezado">
+
+        <div class="marca">
+            <img src="img/logotipo.png" alt="Logotipo Panadería San Carlos" class="logo">
+
+            <div class="marca-texto">
+                <h1>PANADERÍA SAN CARLOS</h1>
+                <p>El pan que alegra tu corazón</p>
+            </div>
+        </div>
+
+        <div class="usuario-header">
+
+            <div class="usuario-info">
+                <span id="nombreUsuario">Usuario</span>
+                <small id="rolUsuario">Rol</small>
+                <small id="sucursalUsuario">
+                    Cargando sucursal...
+                </small>
+            </div>
+
+            <button type="button" id="btnCerrarSesion">
+                Cerrar sesión
+            </button>
+
+        </div>
+
+    </header>
+
+    <!-- MENÚ HORIZONTAL -->
+    <nav class="menu">
+        <a href="dashboard.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="sucursales.html">Sucursales</a>
+        <a href="recetas.html">Recetas</a>
+        <a href="inventario.html">Inventario</a>
+        <a href="produccion.html">Producción</a>
+        <a href="pedidos.html" class="activo">Pedidos</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="reporteria.html">Reportes</a>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="contenido">
+
+        <!-- TÍTULO -->
+        <section class="titulo-modulo">
+
+            <div>
+                <span class="etiqueta">
+                    Administración
+                </span>
+
+                <h2>Gestión de pedidos</h2>
+
+                <p>
+                    Registra solicitudes de productos terminados
+                    para las sucursales y consulta su seguimiento,
+                    preparación, despacho y entrega.
+                </p>
+            </div>
+
+            <button type="button" class="btn-principal" id="btnNuevoPedido">
+                + Nuevo pedido
+            </button>
+
+        </section>
+
+        <!-- FILTROS -->
+        <section class="panel-filtros">
+
+            <div class="campo-busqueda">
+                <label for="buscarPedido">
+                    Buscar pedido
+                </label>
+
+                <input type="search" id="buscarPedido" placeholder="Buscar por ID, sucursal o usuario...">
+            </div>
+
+            <div class="campo-filtro">
+                <label for="filtroEstado">
+                    Estado del pedido
+                </label>
+
+                <select id="filtroEstado">
+                    <option value="">Todos los estados</option>
+                    <option value="PENDIENTE">Pendiente</option>
+                    <option value="APROBADO">Aprobado</option>
+                    <option value="EN PRODUCCION">En producción</option>
+                    <option value="PREPARADO">Preparado</option>
+                    <option value="DESPACHADO">Despachado</option>
+                    <option value="ENTREGADO">Entregado</option>
+                    <option value="CANCELADO">Cancelado</option>
+                </select>
+            </div>
+
+            <div class="campo-filtro" id="grupoFiltroSucursal">
+                <label for="filtroSucursal">
+                    Sucursal
+                </label>
+
+                <select id="filtroSucursal">
+                    <option value="">Todas las sucursales</option>
+                </select>
+            </div>
+
+            <button type="button" class="btn-secundario" id="btnActualizar">
+                Actualizar
+            </button>
+
+        </section>
+
+        <!-- TABLA DE PEDIDOS -->
+        <section class="panel-tabla">
+
+            <div class="tabla-encabezado">
+
+                <div>
+                    <h3>Pedidos registrados</h3>
+                    <p>
+                        Consulta los pedidos y administra su estado.
+                    </p>
+                </div>
+
+                <span class="contador" id="totalPedidos">
+                    0 pedidos
+                </span>
+
+            </div>
+
+            <div class="tabla-responsive">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Sucursal</th>
+                            <th>Solicitado por</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                            <th>Observaciones</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaPedidos">
+                        <tr>
+                            <td colspan="8" class="sin-datos">
+                                Cargando pedidos...
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div id="mensajePedidos" class="mensaje" role="status" aria-live="polite"></div>
+
+        </section>
+
+    </main>
+
+    <!-- =========================================
+         MODAL: CREAR PEDIDO
+    ========================================= -->
+    <div id="modalPedido" class="modal" hidden>
+
+        <div class="modal-contenido modal-grande" role="dialog" aria-modal="true" aria-labelledby="tituloModalPedido">
+
+            <div class="modal-encabezado">
+
+                <h2 id="tituloModalPedido">
+                    Registrar nuevo pedido
+                </h2>
+
+                <button type="button" id="btnCerrarModalPedido" class="btn-cerrar" aria-label="Cerrar formulario">
+                    &times;
+                </button>
+
+            </div>
+
+            <form id="formPedido">
+
+                <div class="form-grid">
+
+                    <div class="form-grupo">
+                        <label for="pedidoSucursal">
+                            Sucursal solicitante
+                        </label>
+
+                        <select id="pedidoSucursal" required>
+                            <option value="">
+                                Seleccione una sucursal
+                            </option>
+                        </select>
+
+                        <small id="ayudaSucursal">
+                            El pedido será enviado para su revisión.
+                        </small>
+                    </div>
+
+                    <div class="form-grupo">
+                        <label for="pedidoUsuario">
+                            Usuario solicitante
+                        </label>
+
+                        <input type="text" id="pedidoUsuario" readonly>
+
+                        <input type="hidden" id="pedidoIdUsuario">
+                    </div>
+
+                    <div class="form-grupo campo-completo">
+                        <label for="pedidoObservaciones">
+                            Observaciones
+                        </label>
+
+                        <textarea id="pedidoObservaciones" maxlength="500" rows="3"
+                            placeholder="Ej. Solicitud de productos para abastecer la sucursal"></textarea>
+                    </div>
+
+                </div>
+
+                <!-- PRODUCTOS DEL PEDIDO -->
+                <div class="seccion-detalles">
+
+                    <div class="seccion-detalles-titulo">
+                        <h3>Productos solicitados</h3>
+                        <p>
+                            Selecciona únicamente productos terminados.
+                        </p>
+                    </div>
+
+                    <div class="agregar-producto-grid">
+
+                        <div class="form-grupo">
+                            <label for="productoPedido">
+                                Producto
+                            </label>
+
+                            <select id="productoPedido">
+                                <option value="">
+                                    Seleccione un producto
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="cantidadPedido">
+                                Cantidad
+                            </label>
+
+                            <input type="number" id="cantidadPedido" min="1" step="1" value="1">
+                        </div>
+
+                        <button type="button" class="btn-secundario" id="btnAgregarProducto">
+                            + Agregar
+                        </button>
+
+                    </div>
+
+                    <div class="tabla-responsive tabla-detalles">
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio unitario</th>
+                                    <th>Subtotal</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="tablaProductosPedido">
+                                <tr>
+                                    <td colspan="5" class="sin-datos">
+                                        No hay productos agregados.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                    <div class="total-pedido">
+                        <span>Total estimado:</span>
+                        <strong id="totalNuevoPedido">
+                            Q 0.00
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div id="mensajeFormularioPedido" class="mensaje-formulario" role="status" aria-live="polite"></div>
+
+                <div class="modal-acciones">
+
+                    <button type="button" id="btnCancelarPedido" class="btn-cancelar">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" id="btnGuardarPedido" class="btn-guardar">
+                        Guardar pedido
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- =========================================
+         MODAL: DETALLE DE PEDIDO
+    ========================================= -->
+    <div id="modalDetallePedido" class="modal" hidden>
+
+        <div class="modal-contenido modal-grande" role="dialog" aria-modal="true" aria-labelledby="tituloDetallePedido">
+
+            <div class="modal-encabezado">
+
+                <h2 id="tituloDetallePedido">
+                    Detalle del pedido
+                </h2>
+
+                <button type="button" id="btnCerrarDetallePedido" class="btn-cerrar" aria-label="Cerrar detalle">
+                    &times;
+                </button>
+
+            </div>
+
+            <div class="resumen-pedido">
+
+                <div>
+                    <small>Sucursal</small>
+                    <strong id="detalleSucursal">—</strong>
+                </div>
+
+                <div>
+                    <small>Solicitado por</small>
+                    <strong id="detalleUsuario">—</strong>
+                </div>
+
+                <div>
+                    <small>Fecha</small>
+                    <strong id="detalleFecha">—</strong>
+                </div>
+
+                <div>
+                    <small>Estado</small>
+                    <span id="detalleEstado" class="estado">
+                        —
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="detalle-observaciones">
+                <h3>Observaciones</h3>
+                <p id="detalleObservaciones">
+                    Sin observaciones.
+                </p>
+            </div>
+
+            <div class="seccion-detalles">
+
+                <div class="seccion-detalles-titulo">
+                    <h3>Productos del pedido</h3>
+                </div>
+
+                <div class="tabla-responsive tabla-detalles">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio unitario</th>
+                                <th>Subtotal</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tablaDetallePedido">
+                            <tr>
+                                <td colspan="5" class="sin-datos">
+                                    Cargando detalle...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="total-pedido">
+                    <span>Total del pedido:</span>
+                    <strong id="totalDetallePedido">
+                        Q 0.00
+                    </strong>
+                </div>
+
+                <!-- AGREGAR PRODUCTOS A PEDIDO PENDIENTE -->
+                <div id="panelAgregarDetalle" class="panel-agregar-detalle" hidden>
+
+                    <h3>Agregar producto al pedido</h3>
+
+                    <div class="agregar-producto-grid">
+
+                        <div class="form-grupo">
+                            <label for="detalleProductoNuevo">
+                                Producto terminado
+                            </label>
+
+                            <select id="detalleProductoNuevo">
+                                <option value="">
+                                    Seleccione un producto
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-grupo">
+                            <label for="detalleCantidadNueva">
+                                Cantidad
+                            </label>
+
+                            <input type="number" id="detalleCantidadNueva" min="1" step="1" value="1">
+                        </div>
+
+                        <button type="button" id="btnAgregarDetalleExistente" class="btn-secundario">
+                            + Agregar
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div id="mensajeDetallePedido" class="mensaje-formulario" role="status" aria-live="polite"></div>
+
+            <div class="modal-acciones">
+
+                <button type="button" id="btnCerrarDetalleInferior" class="btn-cancelar">
+                    Cerrar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="pie">
+        Panadería San Carlos | Sistema administrativo
+    </footer>
+
+    <script src="js/pedidos.js"></script>
+
+</body>
+
+</html>

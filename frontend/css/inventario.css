@@ -1,0 +1,1133 @@
+/* =========================================
+   PANADERÍA SAN CARLOS - INVENTARIO
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #a479396e;
+    color: #573923;
+    min-height: 100vh;
+}
+
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+[hidden],
+.oculto {
+    display: none !important;
+}
+
+/* =========================================
+   ENCABEZADO BLANCO
+========================================= */
+
+.encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 25px;
+    padding: 20px 5%;
+    background: #c9c2c2d3;
+    color: #573923;
+    border-bottom: 1px solid #ead8c5;
+}
+
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo {
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
+}
+
+.marca-texto h1 {
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #573923;
+}
+
+.marca-texto p {
+    margin-top: 5px;
+    font-size: 13px;
+    color: #8b5e3c;
+}
+
+.usuario-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.usuario-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    text-align: right;
+}
+
+.usuario-info span {
+    font-size: 15px;
+    font-weight: bold;
+    color: #573923;
+}
+
+.usuario-info small {
+    font-size: 12px;
+    color: #8b5e3c;
+}
+
+#btnCerrarSesion {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #8b5e3c;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+#btnCerrarSesion:hover {
+    background: #70472b;
+}
+
+#btnCerrarSesion:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   MENÚ
+========================================= */
+
+.menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px 20px;
+    background: #fffaf3;
+    border-bottom: 1px solid #ead8c5;
+    box-shadow: 0 2px 8px rgba(87, 57, 35, 0.05);
+}
+
+.menu a {
+    display: inline-block;
+    padding: 11px 17px;
+    border-radius: 7px;
+    color: #69452e;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.menu a:hover {
+    background: #f0dfca;
+}
+
+.menu a.activo {
+    background: #8b5e3c;
+    color: #ffffff;
+}
+
+/* =========================================
+   CONTENIDO
+========================================= */
+
+.contenido {
+    width: 100%;
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 35px 5% 55px;
+}
+
+.titulo-modulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.etiqueta {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #f0dfca;
+    color: #8b5e3c;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.titulo-modulo h2 {
+    font-size: 30px;
+    color: #573923;
+    margin-bottom: 10px;
+}
+
+.titulo-modulo p {
+    color: #80634c;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* =========================================
+   BOTONES
+========================================= */
+
+.btn-principal {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #8b5e3c;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-principal:hover:not(:disabled) {
+    background: #70472b;
+}
+
+.btn-secundario {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 11px 18px;
+    border: 1px solid #8b5e3c;
+    border-radius: 8px;
+    background: #fffaf3;
+    color: #8b5e3c;
+    font-size: 13px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-secundario:hover:not(:disabled) {
+    background: #f0dfca;
+}
+
+.btn-principal:disabled,
+.btn-secundario:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   ESTADÍSTICAS
+========================================= */
+
+.estadisticas {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.tarjeta-estadistica {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 25px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #ead8c5;
+    box-shadow: 0 3px 12px rgba(87, 57, 35, 0.05);
+    min-width: 0;
+}
+
+.tarjeta-estadistica span {
+    font-size: 13px;
+    color: #80634c;
+}
+
+.tarjeta-estadistica strong {
+    font-size: 29px;
+    color: #8b5e3c;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================
+   PANELES
+========================================= */
+
+.panel {
+    background: #fffaf3;
+    border: 1px solid #ead8c5;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 3px 12px rgba(87, 57, 35, 0.04);
+}
+
+.panel-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.panel-encabezado h3 {
+    font-size: 21px;
+    color: #573923;
+    margin-bottom: 7px;
+}
+
+.panel-encabezado p {
+    font-size: 13px;
+    color: #80634c;
+    line-height: 1.6;
+}
+
+/* =========================================
+   FILTROS DE INVENTARIO
+========================================= */
+
+.filtros {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.filtro-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.filtro-grupo label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #573923;
+}
+
+.filtro-grupo select,
+.filtro-grupo input {
+    height: 43px;
+    padding: 11px 13px;
+    border: 1px solid #d8c4ae;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #573923;
+    font-size: 13px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#filtroUbicacion {
+    min-width: 240px;
+}
+
+#filtroTipoProducto {
+    min-width: 200px;
+}
+
+#buscarProducto {
+    min-width: 190px;
+}
+
+.filtro-grupo select:focus,
+.filtro-grupo input:focus {
+    outline: none;
+    border-color: #8b5e3c;
+    box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.12);
+}
+
+.filtro-grupo select:hover,
+.filtro-grupo input:hover {
+    border-color: #8b5e3c;
+}
+
+/* =========================================
+   TABLAS
+========================================= */
+
+.tabla-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+thead {
+    background: #f0dfca;
+}
+
+th {
+    padding: 15px 13px;
+    color: #573923;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+td {
+    padding: 14px 13px;
+    border-bottom: 1px solid #eaddd2;
+    color: #69452e;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+tbody tr:hover {
+    background: #f7ecdf;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.sin-datos {
+    text-align: center;
+    padding: 25px;
+    color: #80634c;
+    font-style: italic;
+}
+
+/* =========================================
+   ESTADOS DE STOCK
+========================================= */
+
+.estado {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.estado.ok {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.estado.bajo {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* =========================================
+   OPERACIONES Y FORMULARIOS
+========================================= */
+
+.operaciones {
+    margin-top: 30px;
+}
+
+.operaciones>h2 {
+    font-size: 23px;
+    color: #573923;
+    margin-bottom: 18px;
+}
+
+.formularios-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.formulario-panel h3 {
+    font-size: 20px;
+    color: #573923;
+    margin-bottom: 10px;
+}
+
+.formulario-panel p {
+    font-size: 13px;
+    color: #80634c;
+    line-height: 1.6;
+}
+
+.formulario-panel form {
+    margin-top: 22px;
+}
+
+.form-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 17px;
+    min-width: 0;
+}
+
+.form-grupo label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #573923;
+}
+
+.form-grupo input,
+.form-grupo select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d8c4ae;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #573923;
+    font-size: 14px;
+}
+
+.form-grupo input:focus,
+.form-grupo select:focus {
+    outline: none;
+    border-color: #8b5e3c;
+    box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.12);
+}
+
+.form-grupo input:disabled,
+.form-grupo select:disabled {
+    background: #f0ebe5;
+    color: #80634c;
+    cursor: not-allowed;
+}
+
+.formulario-panel button[type="submit"] {
+    margin-top: 4px;
+}
+
+.form-grid button[type="submit"] {
+    align-self: end;
+    margin-bottom: 17px;
+}
+
+/* =========================================
+   MENSAJES
+========================================= */
+
+.mensaje {
+    display: none;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin: 15px 0;
+    line-height: 1.5;
+}
+
+.mensaje:not(:empty) {
+    display: block;
+}
+
+.mensaje.exito {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.mensaje.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* =========================================
+   SUGERENCIAS DE COMPRA
+========================================= */
+
+#seccionSugerencias {
+    margin-top: 35px;
+    margin-bottom: 30px;
+}
+
+.encabezado-sugerencias {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.encabezado-sugerencias>div {
+    flex: 1;
+    min-width: 250px;
+}
+
+.encabezado-sugerencias h2 {
+    font-size: 23px;
+    color: #573923;
+    margin-bottom: 10px;
+}
+
+.encabezado-sugerencias p {
+    font-size: 14px;
+    color: #80634c;
+    line-height: 1.6;
+    max-width: 750px;
+}
+
+#btnGenerarSugerencias {
+    white-space: nowrap;
+    min-height: 44px;
+}
+
+#panelSugerencias {
+    border: 1px solid #e8d7c5;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+#panelSugerencias[hidden] {
+    display: none !important;
+}
+
+#panelSugerencias .panel-encabezado {
+    margin-bottom: 20px;
+}
+
+#panelSugerencias .panel-encabezado h3 {
+    font-size: 19px;
+    color: #573923;
+}
+
+#panelSugerencias .panel-encabezado p {
+    color: #80634c;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* TABLA DE SUGERENCIAS DE COMPRA */
+
+#panelSugerencias table {
+    min-width: 850px;
+}
+
+#panelSugerencias thead {
+    background: #f0dfca;
+}
+
+#panelSugerencias th {
+    font-size: 13px;
+    font-weight: bold;
+    color: #573923;
+    padding: 15px;
+}
+
+#panelSugerencias td {
+    padding: 14px 15px;
+    vertical-align: middle;
+}
+
+#tablaSugerencias tr:hover {
+    background: #f7ecdf;
+}
+
+/* SELECCIONAR TODOS */
+
+.seleccionar-todos {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: bold;
+    color: #573923;
+}
+
+.seleccionar-todos input[type="checkbox"],
+#tablaSugerencias input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #8b5e3c;
+    cursor: pointer;
+}
+
+.seleccionar-todos input[type="checkbox"]:focus-visible,
+#tablaSugerencias input[type="checkbox"]:focus-visible {
+    outline: 2px solid #8b5e3c;
+    outline-offset: 3px;
+}
+
+/* CANTIDADES EDITABLES DE COMPRA */
+
+#tablaSugerencias input[type="number"] {
+    width: 125px;
+    max-width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #d8c4ae;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #573923;
+    font-size: 14px;
+    text-align: right;
+}
+
+#tablaSugerencias input[type="number"]:focus {
+    outline: none;
+    border-color: #8b5e3c;
+    box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.12);
+}
+
+/* ACCIONES DE COMPRA */
+
+.acciones-sugerencias {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e8d7c5;
+}
+
+#totalSugerencias {
+    font-size: 14px;
+    font-weight: bold;
+    color: #69452e;
+}
+
+#btnRegistrarCompras {
+    min-height: 44px;
+}
+
+#mensajeSugerencias {
+    margin-top: 20px;
+    line-height: 1.5;
+}
+
+/* =========================================
+   SUGERENCIAS DE PRODUCCIÓN
+========================================= */
+
+#seccionSugerenciasProduccion {
+    margin-top: 35px;
+    margin-bottom: 30px;
+}
+
+#seccionSugerenciasProduccion .encabezado-sugerencias {
+    margin-bottom: 20px;
+}
+
+#seccionSugerenciasProduccion .encabezado-sugerencias h2 {
+    font-size: 23px;
+    color: #573923;
+    margin-bottom: 10px;
+}
+
+#seccionSugerenciasProduccion .encabezado-sugerencias p {
+    color: #80634c;
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 750px;
+}
+
+#btnGenerarSugerenciasProduccion {
+    min-height: 44px;
+    white-space: nowrap;
+}
+
+#panelSugerenciasProduccion {
+    border: 1px solid #e8d7c5;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+#panelSugerenciasProduccion[hidden] {
+    display: none !important;
+}
+
+#panelSugerenciasProduccion .panel-encabezado {
+    margin-bottom: 20px;
+}
+
+#panelSugerenciasProduccion .panel-encabezado h3 {
+    font-size: 19px;
+    color: #573923;
+}
+
+#panelSugerenciasProduccion .panel-encabezado p {
+    color: #80634c;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* TABLA DE PRODUCCIÓN */
+
+#panelSugerenciasProduccion table {
+    min-width: 850px;
+}
+
+#panelSugerenciasProduccion thead {
+    background: #f0dfca;
+}
+
+#panelSugerenciasProduccion th {
+    font-size: 13px;
+    font-weight: bold;
+    color: #573923;
+    padding: 15px;
+}
+
+#panelSugerenciasProduccion td {
+    padding: 14px 15px;
+    vertical-align: middle;
+}
+
+#tablaSugerenciasProduccion tr:hover {
+    background: #f7ecdf;
+}
+
+/* CANTIDADES EDITABLES DE PRODUCCIÓN */
+
+#tablaSugerenciasProduccion input[type="number"] {
+    width: 125px;
+    max-width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #d8c4ae;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #573923;
+    font-size: 14px;
+    text-align: right;
+}
+
+#tablaSugerenciasProduccion input[type="number"]:focus {
+    outline: none;
+    border-color: #8b5e3c;
+    box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.12);
+}
+
+#tablaSugerenciasProduccion input[type="number"]:disabled {
+    background: #f0ebe5;
+    color: #80634c;
+    cursor: not-allowed;
+}
+
+/* BOTÓN CREAR ORDEN */
+
+#tablaSugerenciasProduccion .btn-principal {
+    min-height: 40px;
+    padding: 10px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+#tablaSugerenciasProduccion .btn-principal:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+#mensajeSugerenciasProduccion {
+    margin-top: 20px;
+    line-height: 1.5;
+}
+
+/* =========================================
+   HISTORIAL
+========================================= */
+
+.historial {
+    margin-top: 30px;
+}
+
+/* =========================================
+   PIE DE PÁGINA
+========================================= */
+
+.pie {
+    text-align: center;
+    padding: 20px;
+    color: #80634c;
+    font-size: 12px;
+    border-top: 1px solid #ead8c5;
+    background: #fffaf3;
+}
+
+/* =========================================
+   RESPONSIVE - TABLET
+========================================= */
+
+@media (max-width: 1100px) {
+
+    .filtros {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .filtro-grupo {
+        flex: 1 1 190px;
+    }
+
+    .filtro-grupo select,
+    .filtro-grupo input {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 1050px) {
+
+    .estadisticas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .formularios-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .encabezado {
+        padding: 18px 4%;
+    }
+
+    .contenido {
+        padding-left: 4%;
+        padding-right: 4%;
+    }
+}
+
+/* =========================================
+   RESPONSIVE - CELULARES
+========================================= */
+
+@media (max-width: 700px) {
+
+    .encabezado {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px 15px;
+    }
+
+    .marca {
+        flex-direction: column;
+    }
+
+    .marca-texto h1 {
+        font-size: 21px;
+    }
+
+    .usuario-header {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .usuario-info {
+        align-items: center;
+        text-align: center;
+    }
+
+    .menu {
+        gap: 5px;
+        padding: 12px;
+    }
+
+    .menu a {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .contenido {
+        padding: 20px 14px 40px;
+    }
+
+    .titulo-modulo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .titulo-modulo h2 {
+        font-size: 26px;
+    }
+
+    .estadisticas,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tarjeta-estadistica {
+        padding: 20px;
+    }
+
+    .tarjeta-estadistica strong {
+        font-size: 26px;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    .panel-encabezado {
+        align-items: flex-start;
+    }
+
+    /* FILTROS RESPONSIVOS */
+
+    .filtros {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .filtro-grupo {
+        width: 100%;
+        flex: 0 1 auto;
+    }
+
+    .filtro-grupo select,
+    .filtro-grupo input {
+        width: 100%;
+        min-width: 0;
+    }
+
+    #filtroUbicacion,
+    #filtroTipoProducto,
+    #buscarProducto {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .form-grid button[type="submit"] {
+        margin-bottom: 0;
+    }
+
+    /* SUGERENCIAS DE COMPRA */
+
+    .encabezado-sugerencias {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .encabezado-sugerencias>div {
+        min-width: 0;
+    }
+
+    .encabezado-sugerencias h2 {
+        font-size: 21px;
+    }
+
+    #btnGenerarSugerencias {
+        width: 100%;
+        white-space: normal;
+    }
+
+    .acciones-sugerencias {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #totalSugerencias {
+        text-align: center;
+    }
+
+    #btnRegistrarCompras {
+        width: 100%;
+    }
+
+    #panelSugerencias {
+        padding: 16px;
+    }
+
+    #tablaSugerencias input[type="number"] {
+        width: 110px;
+    }
+
+    /* SUGERENCIAS DE PRODUCCIÓN */
+
+    #seccionSugerenciasProduccion .encabezado-sugerencias h2 {
+        font-size: 21px;
+    }
+
+    #btnGenerarSugerenciasProduccion {
+        width: 100%;
+        white-space: normal;
+    }
+
+    #panelSugerenciasProduccion {
+        padding: 16px;
+    }
+
+    #tablaSugerenciasProduccion input[type="number"] {
+        width: 110px;
+    }
+
+    #tablaSugerenciasProduccion .btn-principal {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .titulo-modulo .btn-principal {
+        width: 100%;
+    }
+}
+
+/* =========================================
+   RESPONSIVE - PANTALLAS PEQUEÑAS
+========================================= */
+
+@media (max-width: 420px) {
+
+    .marca-texto h1 {
+        font-size: 19px;
+    }
+
+    .titulo-modulo h2 {
+        font-size: 23px;
+    }
+
+    .panel {
+        padding: 14px;
+    }
+
+    .encabezado-sugerencias h2 {
+        font-size: 20px;
+    }
+
+    #seccionSugerenciasProduccion .encabezado-sugerencias h2 {
+        font-size: 20px;
+    }
+
+    #panelSugerenciasProduccion {
+        padding: 14px;
+    }
+
+    .filtro-grupo select,
+    .filtro-grupo input {
+        font-size: 12px;
+        padding: 10px;
+    }
+}

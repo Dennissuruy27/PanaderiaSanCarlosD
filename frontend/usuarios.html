@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Usuarios | Panadería San Carlos</title>
+
+    <link rel="stylesheet" href="css/usuarios.css">
+</head>
+
+<body>
+
+    <!-- ===================================== -->
+    <!-- ENCABEZADO -->
+    <!-- ===================================== -->
+
+    <header class="encabezado">
+
+        <div class="marca">
+
+            <img src="img/logotipo.png" alt="Logotipo Panadería San Carlos" class="logo">
+
+            <div class="marca-texto">
+                <h1>PANADERÍA SAN CARLOS</h1>
+                <p>El pan que alegra tu corazón</p>
+            </div>
+
+        </div>
+
+        <!-- INFORMACIÓN DEL USUARIO -->
+
+        <div class="usuario-header">
+
+            <div class="usuario-info">
+
+                <span id="nombreUsuario">
+                    Usuario
+                </span>
+
+                <small id="rolUsuario">
+                    Rol
+                </small>
+
+                <small id="sucursalUsuario">
+                    Cargando sucursal...
+                </small>
+
+            </div>
+
+            <button type="button" id="btnCerrarSesion">
+                Cerrar sesión
+            </button>
+
+        </div>
+
+    </header>
+
+    <!-- ===================================== -->
+    <!-- MENÚ DE NAVEGACIÓN -->
+    <!-- ===================================== -->
+
+    <nav class="menu">
+
+        <a href="dashboard.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="sucursales.html">Sucursales</a>
+        <a href="recetas.html">Recetas</a>
+        <a href="inventario.html">Inventario</a>
+        <a href="produccion.html">Producción</a>
+        <a href="pedidos.html">Pedidos</a>
+        <a href="usuarios.html" class="activo">Usuarios</a>
+        <a href="reporteria.html">Reportes</a>
+
+    </nav>
+
+    <!-- ===================================== -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ===================================== -->
+
+    <main class="contenido">
+
+        <!-- TÍTULO DEL MÓDULO -->
+
+        <section class="titulo-modulo">
+
+            <div>
+
+                <span class="etiqueta">
+                    Administración
+                </span>
+
+                <h2>
+                    Gestión de usuarios
+                </h2>
+
+                <p id="descripcionUsuarios">
+                    Administra las cuentas de usuario,
+                    sus roles y sucursales según
+                    los permisos de tu cuenta.
+                </p>
+
+            </div>
+
+            <!-- BOTÓN NUEVO USUARIO -->
+
+            <button type="button" class="btn-principal" id="btnNuevoUsuario">
+                + Nuevo usuario
+            </button>
+
+        </section>
+
+        <!-- ===================================== -->
+        <!-- FILTROS -->
+        <!-- ===================================== -->
+
+        <section class="panel-filtros">
+
+            <!-- BUSCAR USUARIO -->
+
+            <div class="campo-busqueda">
+
+                <label for="buscarUsuario">
+                    Buscar usuario
+                </label>
+
+                <input type="search" id="buscarUsuario" placeholder="Buscar por nombre o usuario...">
+
+            </div>
+
+            <!-- FILTRO POR ROL -->
+
+            <div class="campo-filtro">
+
+                <label for="filtroRol">
+                    Rol
+                </label>
+
+                <select id="filtroRol">
+
+                    <option value="">
+                        Todos los roles
+                    </option>
+
+                    <option value="ADMIN">
+                        Administrador
+                    </option>
+
+                    <option value="SUCURSAL">
+                        Encargado de sucursal
+                    </option>
+
+                    <option value="VENDEDOR">
+                        Vendedor
+                    </option>
+
+                    <option value="REPARTIDOR">
+                        Repartidor
+                    </option>
+
+                </select>
+
+            </div>
+
+            <!-- FILTRO POR ESTADO -->
+
+            <div class="campo-filtro">
+
+                <label for="filtroEstado">
+                    Estado
+                </label>
+
+                <select id="filtroEstado">
+
+                    <option value="1">
+                        Activos
+                    </option>
+
+                    <option value="0">
+                        Desactivados
+                    </option>
+
+                    <option value="todos">
+                        Todos
+                    </option>
+
+                </select>
+
+            </div>
+
+            <!-- BOTÓN ACTUALIZAR -->
+
+            <button type="button" class="btn-secundario" id="btnActualizar">
+                Actualizar
+            </button>
+
+        </section>
+
+        <!-- ===================================== -->
+        <!-- TABLA DE USUARIOS -->
+        <!-- ===================================== -->
+
+        <section class="panel-tabla">
+
+            <div class="tabla-encabezado">
+
+                <div>
+
+                    <h3>
+                        Usuarios registrados
+                    </h3>
+
+
+
+                </div>
+
+                <span class="contador" id="totalUsuarios">
+                    0 usuarios
+                </span>
+
+            </div>
+
+            <!-- TABLA -->
+
+            <div class="tabla-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Sucursal</th>
+                            <th>Estado</th>
+                            <th>Fecha de creación</th>
+                            <th>Acciones</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tablaUsuarios">
+
+                        <tr>
+
+                            <td colspan="8" class="sin-datos">
+                                Cargando usuarios...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- MENSAJES -->
+
+            <div id="mensajeUsuarios" class="mensaje" role="status" aria-live="polite"></div>
+
+        </section>
+
+    </main>
+
+    <!-- ===================================== -->
+    <!-- MODAL REGISTRAR / EDITAR USUARIO -->
+    <!-- ===================================== -->
+
+    <div id="modalUsuario" class="modal" hidden>
+
+        <div class="modal-contenido" role="dialog" aria-modal="true" aria-labelledby="tituloModalUsuario">
+
+            <!-- ENCABEZADO DEL MODAL -->
+
+            <div class="modal-encabezado">
+
+                <h2 id="tituloModalUsuario">
+                    Nuevo usuario
+                </h2>
+
+                <button type="button" id="btnCerrarModal" class="btn-cerrar" aria-label="Cerrar formulario">
+                    &times;
+                </button>
+
+            </div>
+
+            <!-- FORMULARIO -->
+
+            <form id="formUsuario">
+
+                <!-- ID OCULTO -->
+
+                <input type="hidden" id="idUsuarioEditar">
+
+                <div class="form-grid">
+
+                    <!-- NOMBRE COMPLETO -->
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="nombreEditar">
+                            Nombre completo
+                        </label>
+
+                        <input type="text" id="nombreEditar" maxlength="100" placeholder="Nombre completo del usuario"
+                            required>
+
+                    </div>
+
+                    <!-- NOMBRE DE USUARIO -->
+
+                    <div class="form-grupo">
+
+                        <label for="usuarioEditar">
+                            Nombre de usuario
+                        </label>
+
+                        <input type="text" id="usuarioEditar" maxlength="50" placeholder="Ejemplo: vendedor3" required>
+
+                    </div>
+
+                    <!-- ROL -->
+
+                    <div class="form-grupo">
+
+                        <label for="rolEditar">
+                            Rol
+                        </label>
+
+                        <select id="rolEditar" required>
+
+                            <option value="VENDEDOR">
+                                Vendedor
+                            </option>
+
+                            <option value="REPARTIDOR">
+                                Repartidor
+                            </option>
+
+                            <option value="SUCURSAL">
+                                Encargado de sucursal
+                            </option>
+
+                            <option value="ADMIN">
+                                Administrador
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- SUCURSAL -->
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="sucursalEditar">
+                            Sucursal
+                        </label>
+
+                        <select id="sucursalEditar">
+
+                            <option value="">
+                                Seleccione una sucursal
+                            </option>
+
+                        </select>
+
+                        <small id="ayudaSucursal">
+                            Seleccione una sucursal activa
+                            registrada en el sistema.
+                            Los encargados y vendedores
+                            deben tener una sucursal asignada.
+                        </small>
+
+                    </div>
+
+                    <!-- CONTRASEÑA AL REGISTRAR -->
+
+                    <div class="form-grupo campo-completo" id="grupoClaveNueva">
+
+                        <label for="claveNuevoUsuario">
+                            Contraseña
+                        </label>
+
+                        <input type="password" id="claveNuevoUsuario" maxlength="255" autocomplete="new-password"
+                            placeholder="Ingresa una contraseña">
+
+                        <small>
+                            La contraseña se solicitará
+                            únicamente al registrar un usuario.
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <!-- MENSAJES DEL FORMULARIO -->
+
+                <div id="mensajeFormulario" class="mensaje-formulario" role="status" aria-live="polite"></div>
+
+                <!-- BOTONES -->
+
+                <div class="modal-acciones">
+
+                    <button type="button" id="btnCancelarUsuario" class="btn-cancelar">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" id="btnGuardarUsuario" class="btn-guardar">
+                        Guardar usuario
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- MODAL CAMBIAR CONTRASEÑA -->
+    <!-- ===================================== -->
+
+    <div id="modalClave" class="modal" hidden>
+
+        <div class="modal-contenido" role="dialog" aria-modal="true" aria-labelledby="tituloModalClave">
+
+            <!-- ENCABEZADO -->
+
+            <div class="modal-encabezado">
+
+                <h2 id="tituloModalClave">
+                    Cambiar contraseña
+                </h2>
+
+                <button type="button" id="btnCerrarModalClave" class="btn-cerrar"
+                    aria-label="Cerrar cambio de contraseña">
+                    &times;
+                </button>
+
+            </div>
+
+            <!-- FORMULARIO -->
+
+            <form id="formCambiarClave">
+
+                <input type="hidden" id="idUsuarioClave">
+
+                <div class="form-grid">
+
+                    <!-- USUARIO SELECCIONADO -->
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="nombreUsuarioClave">
+                            Usuario seleccionado
+                        </label>
+
+                        <input type="text" id="nombreUsuarioClave" readonly>
+
+                    </div>
+
+                    <!-- NUEVA CONTRASEÑA -->
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="claveNueva">
+                            Nueva contraseña
+                        </label>
+
+                        <input type="password" id="claveNueva" maxlength="255" autocomplete="new-password"
+                            placeholder="Escribe la nueva contraseña" required>
+
+                    </div>
+
+                    <!-- CONFIRMAR CONTRASEÑA -->
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="confirmarClave">
+                            Confirmar contraseña
+                        </label>
+
+                        <input type="password" id="confirmarClave" maxlength="255" autocomplete="new-password"
+                            placeholder="Repite la nueva contraseña" required>
+
+                    </div>
+
+                </div>
+
+                <!-- MENSAJES -->
+
+                <div id="mensajeClave" class="mensaje-formulario" role="status" aria-live="polite"></div>
+
+                <!-- BOTONES -->
+
+                <div class="modal-acciones">
+
+                    <button type="button" id="btnCancelarClave" class="btn-cancelar">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" id="btnGuardarClave" class="btn-guardar">
+                        Cambiar contraseña
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- PIE DE PÁGINA -->
+    <!-- ===================================== -->
+
+    <footer class="pie">
+        Panadería San Carlos | Sistema administrativo
+    </footer>
+
+    <!-- ===================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ===================================== -->
+
+    <script src="js/usuarios.js"></script>
+
+</body>
+
+</html>

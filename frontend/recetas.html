@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Recetas | Panadería San Carlos</title>
+
+    <link rel="stylesheet" href="css/recetas.css">
+</head>
+
+<body>
+
+    <!-- ENCABEZADO PRINCIPAL -->
+    <header class="encabezado">
+
+        <div class="marca">
+            <img src="img/logotipo.png" alt="Logotipo Panadería San Carlos" class="logo">
+
+            <div class="marca-texto">
+                <h1>PANADERÍA SAN CARLOS</h1>
+                <p>El pan que alegra tu corazón</p>
+            </div>
+        </div>
+
+        <div class="usuario-header">
+
+            <div class="usuario-info">
+                <span id="nombreUsuario">Usuario</span>
+                <small id="rolUsuario">Rol</small>
+                <small id="sucursalUsuario">Cargando sucursal...</small>
+            </div>
+
+            <button type="button" id="btnCerrarSesion">
+                Cerrar sesión
+            </button>
+
+        </div>
+
+    </header>
+
+    <!-- MENÚ HORIZONTAL -->
+    <nav class="menu">
+        <a href="dashboard.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="sucursales.html">Sucursales</a>
+        <a href="recetas.html" class="activo">Recetas</a>
+        <a href="inventario.html">Inventario</a>
+        <a href="produccion.html">Producción</a>
+        <a href="pedidos.html">Pedidos</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="reporteria.html">Reportes</a>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="contenido">
+
+        <section class="titulo-modulo">
+
+            <div>
+                <span class="etiqueta">Administración</span>
+
+                <h2>Gestión de recetas</h2>
+
+                <p>
+                    Consulta y administra las recetas e ingredientes
+                    de los productos terminados de la panadería.
+                </p>
+            </div>
+
+            <button type="button" class="btn-principal" id="btnNuevaReceta">
+                + Nueva receta
+            </button>
+
+        </section>
+
+        <!-- FILTROS -->
+        <section class="panel-filtros">
+
+            <div class="campo-busqueda">
+                <label for="buscarReceta">Buscar receta</label>
+
+                <input type="search" id="buscarReceta" placeholder="Buscar por receta o producto...">
+            </div>
+
+            <div class="campo-filtro">
+                <label for="filtroEstado">Estado de la receta</label>
+
+                <select id="filtroEstado">
+                    <option value="ACTIVAS">Activas</option>
+                    <option value="APROBADAS">Aprobadas</option>
+                    <option value="PENDIENTES">Pendientes</option>
+                    <option value="INACTIVAS">Desactivadas</option>
+                    <option value="TODAS">Todas</option>
+                </select>
+            </div>
+
+            <button type="button" class="btn-secundario" id="btnActualizar">
+                Actualizar
+            </button>
+
+        </section>
+
+        <!-- TABLA DE RECETAS -->
+        <section class="panel-tabla">
+
+            <div class="tabla-encabezado">
+
+                <div>
+                    <h3>Recetas registradas</h3>
+                   
+                </div>
+
+                <span class="contador" id="totalRecetas">
+                    0 recetas
+                </span>
+
+            </div>
+
+            <div class="tabla-responsive">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Receta</th>
+                            <th>Producto terminado</th>
+                            <th>Rendimiento</th>
+                            <th>Estado</th>
+                            <th>Validación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaRecetas">
+                        <tr>
+                            <td colspan="7" class="sin-datos">
+                                Cargando recetas...
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div id="mensajeRecetas" class="mensaje" role="status" aria-live="polite"></div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL CREAR / EDITAR RECETA -->
+    <div id="modalReceta" class="modal" hidden>
+
+        <div class="modal-contenido" role="dialog" aria-modal="true" aria-labelledby="tituloModalReceta">
+
+            <div class="modal-encabezado">
+
+                <h2 id="tituloModalReceta">
+                    Registrar nueva receta
+                </h2>
+
+                <button type="button" class="btn-cerrar" data-cerrar="modalReceta" aria-label="Cerrar formulario">
+                    &times;
+                </button>
+
+            </div>
+
+            <form id="formReceta">
+
+                <input type="hidden" id="idReceta">
+
+                <div class="form-grid">
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="productoReceta">
+                            Producto terminado
+                        </label>
+
+                        <select id="productoReceta" required>
+                            <option value="">
+                                Seleccione un producto
+                            </option>
+                        </select>
+
+                        <small>
+                            Cada producto terminado puede tener
+                            una sola receta activa.
+                        </small>
+
+                    </div>
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="nombreReceta">
+                            Nombre de la receta
+                        </label>
+
+                        <input type="text" id="nombreReceta" maxlength="150" placeholder="Ej. Receta de pan francés"
+                            required>
+
+                    </div>
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="rendimientoReceta">
+                            Rendimiento (unidades)
+                        </label>
+
+                        <input type="number" id="rendimientoReceta" min="0.01" step="any" placeholder="Ej. 100"
+                            required>
+
+                    </div>
+
+                </div>
+
+                <div id="mensajeFormulario" class="mensaje-formulario" role="status" aria-live="polite"></div>
+
+                <div class="modal-acciones">
+
+                    <button type="button" class="btn-cancelar" data-cerrar="modalReceta">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="btn-guardar" id="btnGuardarReceta">
+                        Guardar receta
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL DE INGREDIENTES -->
+    <div id="modalDetalle" class="modal" hidden>
+
+        <div class="modal-contenido modal-grande" role="dialog" aria-modal="true" aria-labelledby="tituloDetalle">
+
+            <div class="modal-encabezado">
+
+                <div>
+                    <h2 id="tituloDetalle">
+                        Ingredientes de la receta
+                    </h2>
+
+                    <p id="descripcionDetalle" class="descripcion-detalle"></p>
+                </div>
+
+                <button type="button" class="btn-cerrar" data-cerrar="modalDetalle" aria-label="Cerrar detalle">
+                    &times;
+                </button>
+
+            </div>
+
+            <div id="estadoDetalle" class="estado-detalle"></div>
+
+            <div class="tabla-responsive">
+
+                <table class="tabla-ingredientes">
+
+                    <thead>
+                        <tr>
+                            <th>Materia prima</th>
+                            <th>Unidad</th>
+                            <th>Cantidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaIngredientes">
+                        <tr>
+                            <td colspan="4" class="sin-datos">
+                                Cargando ingredientes...
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <form id="formIngrediente" class="form-ingrediente">
+
+                <h3>Agregar ingrediente</h3>
+
+                <div class="form-grid">
+
+                    <div class="form-grupo">
+
+                        <label for="materiaPrima">
+                            Materia prima
+                        </label>
+
+                        <select id="materiaPrima" required>
+                            <option value="">
+                                Seleccione una materia prima
+                            </option>
+                        </select>
+
+                    </div>
+
+                    <div class="form-grupo">
+
+                        <label for="cantidadIngrediente">
+                            Cantidad
+                        </label>
+
+                        <input type="number" id="cantidadIngrediente" min="0.0001" step="any" required>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-acciones">
+                    <button type="submit" class="btn-guardar" id="btnAgregarIngrediente">
+                        + Agregar ingrediente
+                    </button>
+                </div>
+
+            </form>
+
+            <div class="modal-acciones">
+
+                <button type="button" class="btn-cancelar" data-cerrar="modalDetalle">
+                    Cerrar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="pie">
+        Panadería San Carlos | Sistema administrativo
+    </footer>
+
+    <script src="js/recetas.js"></script>
+
+</body>
+
+</html>

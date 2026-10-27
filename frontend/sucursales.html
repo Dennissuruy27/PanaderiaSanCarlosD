@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sucursales | Panadería San Carlos</title>
+
+    <link rel="stylesheet" href="css/sucursales.css">
+</head>
+
+<body>
+
+    <!-- ENCABEZADO -->
+
+    <header class="encabezado">
+
+        <div class="marca">
+
+            <img
+                src="img/logotipo.png"
+                alt="Logotipo Panadería San Carlos"
+                class="logo"
+            >
+
+            <div class="marca-texto">
+                <h1>PANADERÍA SAN CARLOS</h1>
+                <p>El pan que alegra tu corazón</p>
+            </div>
+
+        </div>
+
+        <div class="usuario-header">
+
+            <div class="usuario-info">
+                <span id="nombreUsuario">Usuario</span>
+                <small id="rolUsuario">Rol</small>
+                <small id="sucursalUsuario">
+                    Cargando sucursal...
+                </small>
+            </div>
+
+            <button type="button" id="btnCerrarSesion">
+                Cerrar sesión
+            </button>
+
+        </div>
+
+    </header>
+
+    <!-- MENÚ -->
+
+    <nav class="menu">
+
+        <a href="dashboard.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="sucursales.html" class="activo">Sucursales</a>
+        <a href="recetas.html">Recetas</a>
+        <a href="inventario.html">Inventario</a>
+        <a href="produccion.html">Producción</a>
+        <a href="pedidos.html">Pedidos</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="reporteria.html">Reportes</a>
+
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+
+    <main class="contenido">
+
+        <section class="titulo-modulo">
+
+            <div>
+
+                <span class="etiqueta">
+                    Administración
+                </span>
+
+                <h2>Gestión de sucursales</h2>
+
+                <p id="descripcionSucursales">
+                    Consulta y administra las sucursales
+                    de Panadería San Carlos.
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                id="btnNuevaSucursal"
+                class="btn-principal"
+            >
+                + Nueva sucursal
+            </button>
+
+        </section>
+
+        <!-- FILTROS -->
+
+        <section class="panel-filtros">
+
+            <div class="campo-busqueda">
+
+                <label for="buscarSucursal">
+                    Buscar sucursal
+                </label>
+
+                <input
+                    type="search"
+                    id="buscarSucursal"
+                    placeholder="Buscar por nombre o dirección..."
+                >
+
+            </div>
+
+            <div class="campo-filtro">
+
+                <label for="filtroEstado">
+                    Estado
+                </label>
+
+                <select id="filtroEstado">
+                    <option value="1">Activas</option>
+                    <option value="0">Desactivadas</option>
+                    <option value="todos">Todas</option>
+                </select>
+
+            </div>
+
+            <button
+                type="button"
+                id="btnActualizar"
+                class="btn-secundario"
+            >
+                Actualizar
+            </button>
+
+        </section>
+
+        <!-- TABLA DE SUCURSALES -->
+
+        <section class="panel-tabla">
+
+            <div class="tabla-encabezado">
+
+                <div>
+                    <h3>Sucursales registradas</h3>
+                    
+                </div>
+
+                <span class="contador" id="totalSucursales">
+                    0 sucursales
+                </span>
+
+            </div>
+
+            <div class="tabla-responsive">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Dirección</th>
+                            <th>Teléfono</th>
+                            <th>Estado</th>
+                            <th>Fecha de creación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaSucursales">
+
+                        <tr>
+                            <td colspan="7" class="sin-datos">
+                                Cargando sucursales...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div
+                id="mensajeSucursales"
+                class="mensaje"
+                role="status"
+                aria-live="polite"
+            ></div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL REGISTRAR / EDITAR -->
+
+    <div id="modalSucursal" class="modal" hidden>
+
+        <div
+            class="modal-contenido"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tituloModalSucursal"
+        >
+
+            <div class="modal-encabezado">
+
+                <h2 id="tituloModalSucursal">
+                    Nueva sucursal
+                </h2>
+
+                <button
+                    type="button"
+                    id="btnCerrarModal"
+                    class="btn-cerrar"
+                    aria-label="Cerrar formulario"
+                >
+                    &times;
+                </button>
+
+            </div>
+
+            <form id="formSucursal">
+
+                <input
+                    type="hidden"
+                    id="idSucursalEditar"
+                >
+
+                <div class="form-grid">
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="nombreEditar">
+                            Nombre de la sucursal
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nombreEditar"
+                            maxlength="100"
+                            placeholder="Ejemplo: Sucursal Norte"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="direccionEditar">
+                            Dirección
+                        </label>
+
+                        <input
+                            type="text"
+                            id="direccionEditar"
+                            maxlength="200"
+                            placeholder="Dirección de la sucursal"
+                        >
+
+                    </div>
+
+                    <div class="form-grupo campo-completo">
+
+                        <label for="telefonoEditar">
+                            Teléfono
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="telefonoEditar"
+                            maxlength="20"
+                            placeholder="Ejemplo: 5555-1234"
+                        >
+
+                    </div>
+
+                </div>
+
+                <div
+                    id="mensajeFormulario"
+                    class="mensaje-formulario"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+
+                <div class="modal-acciones">
+
+                    <button
+                        type="button"
+                        id="btnCancelarSucursal"
+                        class="btn-cancelar"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="btnGuardarSucursal"
+                        class="btn-guardar"
+                    >
+                        Guardar sucursal
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+
+    <footer class="pie">
+        Panadería San Carlos | Sistema administrativo
+    </footer>
+
+    <script src="js/sucursales.js"></script>
+
+</body>
+
+</html>

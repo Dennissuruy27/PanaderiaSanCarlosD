@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Productos | Panadería San Carlos</title>
+
+    <link rel="stylesheet" href="css/productos.css">
+</head>
+
+<body>
+
+    <!-- ENCABEZADO PRINCIPAL -->
+    <header class="encabezado">
+
+        <div class="marca">
+            <img src="img/logotipo.png" alt="Logotipo Panadería San Carlos" class="logo">
+
+            <div class="marca-texto">
+                <h1>PANADERÍA SAN CARLOS</h1>
+                <p>El pan que alegra tu corazón</p>
+            </div>
+        </div>
+
+        <div class="usuario-header">
+
+            <!-- INFORMACIÓN DEL USUARIO CONECTADO -->
+            <div class="usuario-info">
+
+                <span id="nombreUsuario">
+                    Usuario
+                </span>
+
+                <small id="rolUsuario">
+                    Rol
+                </small>
+
+                <small id="sucursalUsuario">
+                    Cargando sucursal...
+                </small>
+
+            </div>
+
+            <button type="button" id="btnCerrarSesion">
+                Cerrar sesión
+            </button>
+
+        </div>
+
+    </header>
+
+    <!-- MENÚ HORIZONTAL -->
+    <nav class="menu">
+        <a href="dashboard.html">Inicio</a>
+        <a href="productos.html" class="activo">Productos</a>
+        <a href="sucursales.html">Sucursales</a>
+        <a href="recetas.html">Recetas</a>
+        <a href="inventario.html">Inventario</a>
+        <a href="produccion.html">Producción</a>
+        <a href="pedidos.html">Pedidos</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="reporteria.html">Reportes</a>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="contenido">
+
+        <section class="titulo-modulo">
+
+            <div>
+                <span class="etiqueta">Administración</span>
+
+                <h2>Gestión de productos</h2>
+
+                <p>
+                    Consulta y administra las materias primas
+                    y los productos terminados de la panadería.
+                </p>
+            </div>
+
+            <button type="button" class="btn-principal" id="btnNuevoProducto">
+                + Nuevo producto
+            </button>
+
+        </section>
+
+        <!-- FILTROS -->
+        <section class="panel-filtros">
+
+            <div class="campo-busqueda">
+
+                <label for="buscarProducto">
+                    Buscar producto
+                </label>
+
+                <input type="search" id="buscarProducto" placeholder="Buscar por nombre...">
+
+            </div>
+
+            <div class="campo-filtro">
+
+                <label for="filtroTipo">
+                    Tipo de producto
+                </label>
+
+                <select id="filtroTipo">
+                    <option value="">Todos los productos</option>
+
+                    <option value="MATERIA_PRIMA">
+                        Materia prima
+                    </option>
+
+                    <option value="PRODUCTO_TERMINADO">
+                        Producto terminado
+                    </option>
+                </select>
+
+            </div>
+
+            <!-- FILTRO POR ESTADO -->
+            <div class="campo-filtro">
+
+                <label for="filtroEstado">
+                    Estado del producto
+                </label>
+
+                <select id="filtroEstado">
+
+                    <option value="1">
+                        Activos
+                    </option>
+
+                    <option value="0">
+                        Desactivados
+                    </option>
+
+                    <option value="todos">
+                        Todos
+                    </option>
+
+                </select>
+
+            </div>
+
+            <button type="button" class="btn-secundario" id="btnActualizar">
+                Actualizar
+            </button>
+
+        </section>
+
+        <!-- TABLA DE PRODUCTOS -->
+        <section class="panel-tabla">
+
+            <div class="tabla-encabezado">
+
+                <div>
+                    <h3>Productos registrados</h3>
+                  
+                </div>
+
+                <span class="contador" id="totalProductos">
+                    0 productos
+                </span>
+
+            </div>
+
+            <div class="tabla-responsive">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Producto</th>
+                            <th>Tipo</th>
+                            <th>Unidad</th>
+                            <th>Existencia</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th>Validación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tablaProductos">
+
+                        <tr>
+                            <td colspan="9" class="sin-datos">
+                                Cargando productos...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div id="mensajeProductos" class="mensaje" role="status" aria-live="polite"></div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================
+         MODAL PARA REGISTRAR Y EDITAR PRODUCTOS
+    ========================================= -->
+
+    <div id="modalProducto" class="modal" hidden>
+
+        <div class="modal-contenido" role="dialog" aria-modal="true" aria-labelledby="tituloModalProducto">
+
+            <div class="modal-encabezado">
+
+                <h2 id="tituloModalProducto">
+                    Registrar nuevo producto
+                </h2>
+
+                <button type="button" id="btnCerrarModal" class="btn-cerrar" aria-label="Cerrar formulario">
+                    &times;
+                </button>
+
+            </div>
+
+            <form id="formProducto">
+
+                <!-- ID DEL PRODUCTO EN EDICIÓN -->
+                <input type="hidden" id="idProductoEditar" value="">
+
+                <div class="form-grid">
+
+                    <!-- NOMBRE -->
+                    <div class="form-grupo campo-completo">
+
+                        <label for="nombreProducto">
+                            Nombre del producto
+                        </label>
+
+                        <input type="text" id="nombreProducto" maxlength="100" placeholder="Ej. Harina integral"
+                            required>
+
+                    </div>
+
+                    <!-- TIPO -->
+                    <div class="form-grupo">
+
+                        <label for="tipoProducto">
+                            Tipo de producto
+                        </label>
+
+                        <select id="tipoProducto" required>
+
+                            <option value="">
+                                Seleccione un tipo
+                            </option>
+
+                            <option value="MATERIA_PRIMA">
+                                Materia prima
+                            </option>
+
+                            <option value="PRODUCTO_TERMINADO">
+                                Producto terminado
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- UNIDAD -->
+                    <div class="form-grupo">
+
+                        <label for="unidadMedida">
+                            Unidad de medida
+                        </label>
+
+                        <select id="unidadMedida" required>
+
+                            <option value="">
+                                Seleccione una unidad
+                            </option>
+
+                            <option value="KG">KG</option>
+                            <option value="UNIDAD">Unidad</option>
+                            <option value="LITRO">Litro</option>
+                            <option value="GRAMO">Gramo</option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- EXISTENCIA MÍNIMA -->
+                    <div class="form-grupo">
+
+                        <label for="existenciaMinima">
+                            Existencia mínima
+                        </label>
+
+                        <input type="number" id="existenciaMinima" min="0" step="0.01" value="0" required>
+
+                    </div>
+
+                    <!-- PRECIO -->
+                    <div class="form-grupo campo-completo">
+
+                        <label for="precioP">
+                            Precio del producto (Q)
+                        </label>
+
+                        <input type="number" id="precioP" min="0" step="0.01" placeholder="0.00" required>
+
+                    </div>
+
+                </div>
+
+                <!-- MENSAJES DEL FORMULARIO -->
+                <div id="mensajeFormulario" class="mensaje-formulario" role="status" aria-live="polite"></div>
+
+                <!-- BOTONES -->
+                <div class="modal-acciones">
+
+                    <button type="button" id="btnCancelarProducto" class="btn-cancelar">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" id="btnGuardarProducto" class="btn-guardar">
+                        Guardar producto
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="pie">
+        Panadería San Carlos | Sistema administrativo
+    </footer>
+
+    <script src="js/productos.js"></script>
+
+</body>
+
+</html>

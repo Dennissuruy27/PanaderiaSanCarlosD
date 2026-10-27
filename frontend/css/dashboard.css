@@ -1,0 +1,475 @@
+/* =========================================
+   CONFIGURACION GENERAL
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #a479396e;
+    color: #e8250267;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* =========================================
+   ENCABEZADO PRINCIPAL
+========================================= */
+
+.topbar {
+    width: 100%;
+    background: #c9c2c2d3;
+    box-shadow: 0 3px 12px rgba(80, 50, 25, 0.08);
+}
+
+.encabezado-superior {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 35px;
+    gap: 20px;
+}
+
+/* LOGOTIPO Y NOMBRE */
+
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-topbar {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+}
+
+.marca h1 {
+    font-size: 22px;
+    color: #573923;
+    font-weight: bold;
+}
+
+.marca p {
+    font-size: 13px;
+    color: #856a53;
+    margin-top: 5px;
+}
+
+/* USUARIO */
+
+.acciones-usuario {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.usuario-info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    gap: 4px;
+}
+
+.usuario-info span {
+    font-size: 14px;
+    font-weight: bold;
+    color: #573923;
+}
+
+.usuario-info small {
+    font-size: 12px;
+    color: #856a53;
+}
+
+/* BOTON CERRAR SESION */
+
+.btn-salir {
+    padding: 11px 16px;
+    background: #8b5e3c;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.btn-salir:hover {
+    background: #69452e;
+}
+
+/* =========================================
+   MENU HORIZONTAL
+========================================= */
+
+.menu-horizontal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 10px 20px;
+
+    background: #fffaf3;
+    border-top: 1px solid #eadccc;
+}
+
+.menu-horizontal a {
+    color: #573923;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 11px 16px;
+    border-radius: 7px;
+    transition: 0.2s;
+}
+
+.menu-horizontal a:hover {
+    background: #f0dfcb;
+}
+
+.menu-horizontal a.activo {
+    background: #8b5e3c;
+    color: white;
+    font-weight: bold;
+}
+
+/* =========================================
+   CONTENIDO PRINCIPAL
+========================================= */
+
+.contenido {
+    max-width: 1450px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 22px 25px 40px;
+}
+
+/* =========================================
+   BANNER PRINCIPAL
+========================================= */
+
+.banner {
+    width: 100%;
+    height: auto;
+    background-size: cover;
+    background-position: center;
+
+
+    background-image:
+        linear-gradient(90deg,
+            rgba(255, 250, 243, 0.98) 0%,
+            rgba(231, 199, 156, 0.89) 28%,
+            rgba(255, 250, 243, 0.155) 60%),
+        url("../img/banner.png");
+
+    border-radius: 16px;
+    overflow: hidden;
+
+    box-shadow: 0 4px 15px rgba(80, 50, 25, 0.10);
+
+    margin-bottom: 25px;
+}
+
+.banner-texto {
+    max-width: 520px;
+    padding: 30px 38px;
+}
+
+.banner-etiqueta {
+    display: block;
+    color: #856a53;
+    font-size: 16px;
+    margin-bottom: 7px;
+}
+
+.banner-texto h2 {
+    font-size: 40px;
+    line-height: 1.05;
+    color: #573923;
+    font-weight: 800;
+}
+
+.linea-decorativa {
+    max-width: 110px;
+    height: 4px;
+    background: #d8a45d;
+    border-radius: 5px;
+    margin: 12px 0;
+}
+
+.banner-texto p {
+    color: #654b37;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.btn-explorar {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 11px 20px;
+    background: #8b5e3c;
+    color: white;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.btn-explorar:hover {
+    background: #69452e;
+}
+
+/* =========================================
+   ENCABEZADO DE MODULOS
+========================================= */
+
+.seccion-encabezado {
+    margin-bottom: 17px;
+}
+
+.seccion-encabezado h2 {
+    color: #573923;
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+.seccion-encabezado p {
+    color: #856a53;
+    font-size: 13px;
+}
+
+/* =========================================
+   TARJETAS DE MODULOS
+========================================= */
+
+.tarjetas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.tarjeta {
+    display: grid;
+    grid-template-columns: 57% 43%;
+    min-height: 165px;
+
+    background: #fffaf3;
+    border-radius: 12px;
+    overflow: hidden;
+
+    box-shadow: 0 4px 14px rgba(80, 50, 25, 0.09);
+
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+
+.tarjeta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(80, 50, 25, 0.15);
+}
+
+/* INFORMACION IZQUIERDA */
+
+.tarjeta-contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    min-width: 0;
+    padding: 15px;
+}
+
+.tarjeta-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    background: #f1dfc6;
+    border-radius: 50%;
+
+    font-size: 20px;
+    margin-bottom: 9px;
+}
+
+.tarjeta-contenido h3 {
+    color: #573923;
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+
+.tarjeta-contenido p {
+    color: #856a53;
+    font-size: 12px;
+    line-height: 1.35;
+    margin-bottom: 10px;
+}
+
+/* BOTONES DE TARJETAS */
+
+.btn-modulo {
+    display: inline-block;
+    padding: 6px 11px;
+
+    border: 1px solid #8b5e3c;
+    border-radius: 20px;
+
+    color: #70482e;
+    font-size: 11px;
+    font-weight: bold;
+
+    transition: 0.2s;
+}
+
+.btn-modulo:hover {
+    background: #8b5e3c;
+    color: white;
+}
+
+/* IMAGEN DERECHA */
+
+.tarjeta-imagen {
+    height: 100%;
+    min-height: 165px;
+    overflow: hidden;
+}
+
+.tarjeta-imagen img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* =========================================
+   DISEÑO RESPONSIVE
+========================================= */
+
+@media (max-width: 1050px) {
+
+    .tarjetas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .encabezado-superior {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .marca h1 {
+        font-size: 17px;
+    }
+
+    .logo-topbar {
+        width: 52px;
+        height: 52px;
+    }
+
+    .acciones-usuario {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .menu-horizontal {
+        justify-content: flex-start;
+        padding: 10px;
+    }
+
+    .menu-horizontal a {
+        font-size: 12px;
+        padding: 9px 11px;
+    }
+
+    .contenido {
+        padding: 15px;
+    }
+
+    .banner {
+        min-height: 260px;
+    }
+
+    .banner-texto {
+        padding: 22px;
+    }
+
+    .banner-texto h2 {
+        font-size: 29px;
+    }
+
+    .tarjetas {
+        grid-template-columns: 1fr;
+    }
+
+    /* CONTENEDOR PRINCIPAL RESPONSIVE */
+
+    main,
+    .contenido-principal {
+        width: 100%;
+        max-width: 1450px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 24px;
+        padding-right: 24px;
+        box-sizing: border-box;
+    }
+
+
+    /* =========================================
+   SUCURSAL DEL USUARIO EN EL ENCABEZADO
+========================================= */
+
+    #sucursalUsuario {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #76543d;
+        line-height: 1.4;
+    }
+
+    /* Mantener alineados nombre, rol y sucursal */
+
+    .usuario-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        text-align: right;
+        gap: 4px;
+    }
+
+    /* Ajuste para pantallas pequeñas */
+
+    @media (max-width: 700px) {
+
+        .usuario-info {
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        #sucursalUsuario {
+            font-size: 11px;
+        }
+    }
+
+}

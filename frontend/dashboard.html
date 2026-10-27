@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Panadería San Carlos | Dashboard</title>
+
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+
+    <!-- =====================================
+         ENCABEZADO PRINCIPAL
+    ====================================== -->
+
+    <header class="topbar">
+
+        <div class="encabezado-superior">
+
+            <div class="marca">
+
+                <img src="img/logotipo.png" alt="Logotipo Panadería San Carlos" class="logo-topbar">
+
+                <div>
+                    <h1>PANADERÍA SAN CARLOS</h1>
+                    <p>El pan que alegra tu corazón</p>
+                </div>
+
+            </div>
+
+            <div class="acciones-usuario">
+
+                <!-- INFORMACIÓN DEL USUARIO -->
+
+                <div class="usuario-info">
+
+                    <span id="nombreUsuario">
+                        Usuario
+                    </span>
+
+                    <small id="rolUsuario">
+                        Rol
+                    </small>
+
+                    <!-- NUEVO: SUCURSAL DEL USUARIO -->
+
+                    <small id="sucursalUsuario">
+                        Cargando sucursal...
+                    </small>
+
+                </div>
+
+                <button id="btnCerrarSesion" class="btn-salir" type="button">
+                    Cerrar sesión
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- =====================================
+             MENÚ HORIZONTAL
+        ====================================== -->
+
+        <nav class="menu-horizontal" aria-label="Menú principal">
+
+            <a href="dashboard.html" class="activo">Inicio</a>
+            <a href="productos.html">Productos</a>
+            <a href="sucursales.html">Sucursales</a>
+            <a href="recetas.html">Recetas</a>
+            <a href="inventario.html">Inventario</a>
+            <a href="produccion.html">Producción</a>
+            <a href="pedidos.html">Pedidos</a>
+            <a href="usuarios.html">Usuarios</a>
+            <a href="reporteria.html">Reportes</a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =====================================
+         CONTENIDO PRINCIPAL
+    ====================================== -->
+
+    <main class="contenido">
+
+        <!-- =====================================
+             BANNER PRINCIPAL
+        ====================================== -->
+
+        <section class="banner">
+
+            <div class="banner-texto">
+
+                <span class="banner-etiqueta">
+                    Bienvenido a
+                </span>
+
+                <h2>
+                    PANADERÍA<br>
+                    SAN CARLOS
+                </h2>
+
+                <div class="linea-decorativa"></div>
+
+                <p style="color: black;">
+                    Administra tus productos, inventario,
+                    producción y pedidos desde un solo lugar.
+                    Manteniendo la calidad y tradición
+                    que nos distingue.
+                </p>
+
+                <a href="#modulos" class="btn-explorar">
+                    Explorar módulos →
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             MÓDULOS DEL SISTEMA
+        ====================================== -->
+
+        <section id="modulos" class="seccion-modulos">
+
+            <div class="seccion-encabezado">
+
+                <h2>Módulos del sistema</h2>
+
+                <p style="color: black;">
+                    Selecciona el módulo que deseas
+                    administrar.
+                </p>
+
+            </div>
+
+
+            <div class="tarjetas">
+
+                <!-- =====================================
+                     PRODUCTOS
+                ====================================== -->
+
+                <article class="tarjeta">
+
+                    <div class="tarjeta-contenido">
+
+                        <span class="tarjeta-icono">
+                            🍞
+                        </span>
+
+                        <h3>Productos</h3>
+
+                        <p>
+                            Gestiona materias primas
+                            y productos terminados.
+                        </p>
+
+                        <a href="productos.html" class="btn-modulo">
+                            Ver productos →
+                        </a>
+
+                    </div>
+
+                    <div class="tarjeta-imagen">
+
+                        <img src="img/productos.png" alt="Productos de panadería">
+
+                    </div>
+
+                </article>
+
+
+                <!-- =====================================
+                     SUCURSALES
+                ====================================== -->
+
+                <article class="tarjeta">
+
+                    <div class="tarjeta-contenido">
+
+                        <span class="tarjeta-icono">
+                            🏬
+                        </span>
+
+                        <h3>Sucursales</h3>
+
+                        <p>
+                            Administra las diferentes
+                            sucursales de la panadería.
+                        </p>
+
+                        <a href="sucursales.html" class="btn-modulo">
+                            Ver sucursales →
+                        </a>
+
+                    </div>
+
+                    <div class="tarjeta-imagen">
+
+                        <img src="img/sucursales.png" alt="Sucursal de panadería">
+
+                    </div>
+
+                </article>
+
+
+                <!-- =====================================
+                     RECETAS
+                ====================================== -->
+
+                <article class="tarjeta">
+
+                    <div class="tarjeta-contenido">
+
+                        <span class="tarjeta-icono">
+                            📋
+                        </span>
+
+                        <h3>Recetas</h3>
+
+                        <p>
+                            Consulta y administra
+                            las recetas de producción.
+                        </p>
+
+                        <a href="recetas.html" class="btn-modulo">
+                            Ver recetas →
+                        </a>
+
+                    </div>
+
+                    <div class="tarjeta-imagen">
+
+                        <img src="img/recetas.png" alt="Ingredientes de panadería">
+
+                    </div>
+
+                </article>
+
+
+                <!-- =====================================
+                     INVENTARIO
+                ====================================== -->
+
+                <article class="tarjeta">
+
+                    <div class="tarjeta-contenido">
+
+                        <span class="tarjeta-icono">
+                            📦
+                        </span>
+
+                        <h3>Inventario</h3>
+
+                        <p>
+                            Controla existencias
+                            y movimientos de inventario.
+                        </p>
+
+                        <a href="inventario.html" class="btn-modulo">
+                            Ver inventario →
+                        </a>
+
+                    </div>
+
+                    <div class="tarjeta-imagen">
+
+                        <img src="img/inventario.png" alt="Inventario de panadería">
+
+                    </div>
+
+                </article>
+
+
+                <!-- =====================================
+                     PRODUCCIÓN
+                ====================================== -->
+
+                <article class="tarjeta">
+
+                    <div class="tarjeta-contenido">
+
+                        <span class="tarjeta-icono">
+                            👨‍🍳
+                        </span>
+
+                        <h3>Producción</h3>
+
+                        <p>
+                            Gestiona las órdenes
+                            de producción.
+                        </p>
+
+                        <a href="produccion.html" class="btn-modulo">
+                            Ver producción →
+                        </a>
+
+                    </div>
+
+                    <div class="tarjeta-imagen">
+
+                        <img src="img/produccion.png" alt="Producción de pan">
+
+                    </div>
+
+                </article>
+
+
+                <!-- =====================================
+                     PEDIDOS
+                ====================================== -->
+
+                <article class="tarjeta">
+
+                    <div class="tarjeta-contenido">
+
+                        <span class="tarjeta-icono">
+                            🛒
+                        </span>
+
+                        <h3>Pedidos</h3>
+
+                        <p>
+                            Registra y da seguimiento
+                            a los pedidos de tus clientes.
+                        </p>
+
+                        <a href="pedidos.html" class="btn-modulo">
+                            Ver pedidos →
+                        </a>
+
+                    </div>
+
+                    <div class="tarjeta-imagen">
+
+                        <img src="img/pedidos.png" alt="Pedidos de panadería">
+
+                    </div>
+
+                </article>
+
+
+                <!-- =====================================
+                     USUARIOS
+                ====================================== -->
+
+                <article class="tarjeta">
+
+                    <div class="tarjeta-contenido">
+
+                        <span class="tarjeta-icono">
+                            👥
+                        </span>
+
+                        <h3>Usuarios</h3>
+
+                        <p>
+                            Administra los usuarios
+                            y asigna permisos.
+                        </p>
+
+                        <a href="usuarios.html" class="btn-modulo">
+                            Ver usuarios →
+                        </a>
+
+                    </div>
+
+                    <div class="tarjeta-imagen">
+
+                        <img src="img/usuarios.png" alt="Administración de usuarios">
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================
+         JAVASCRIPT
+    ====================================== -->
+
+    <script src="js/dashboard.js"></script>
+
+</body>
+
+</html>
