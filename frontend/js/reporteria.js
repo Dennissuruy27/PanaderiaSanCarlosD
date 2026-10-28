@@ -4,10 +4,10 @@
 ========================================= */
 
 const API_REPORTERIA =
-    "http://localhost:8080/PROYECTOWEB/api/reporteria";
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/reporteria";
 
 const API_LOGOUT =
-    "http://localhost:8080/PROYECTOWEB/api/usuarios/logout";
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/usuarios/logout";
 
 const $ = id => document.getElementById(id);
 
