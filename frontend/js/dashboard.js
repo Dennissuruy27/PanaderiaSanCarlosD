@@ -6,10 +6,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // =====================================
 
     const API_USUARIOS =
-        "http://localhost:8080/PROYECTOWEB/api/usuarios";
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/usuarios";
 
     const API_SUCURSALES =
-        "http://localhost:8080/PROYECTOWEB/api/sucursales";
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/sucursales";
 
 
     // =====================================
