@@ -14,17 +14,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     // CONFIGURACIÓN DE API
     // ========================================================
 
-    const API_PEDIDOS =
-        "http://localhost:8080/PROYECTOWEB/api/pedidos";
+    
+const API_PEDIDOS =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/pedidos";
 
-    const API_PRODUCTOS =
-        "http://localhost:8080/PROYECTOWEB/api/productos";
+const API_PRODUCTOS =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/productos";
 
-    const API_SUCURSALES =
-        "http://localhost:8080/PROYECTOWEB/api/sucursales";
+const API_SUCURSALES =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/sucursales";
 
-    const API_LOGOUT =
-        "http://localhost:8080/PROYECTOWEB/api/usuarios/logout";
+const API_LOGOUT =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/usuarios/logout";
+
 
     // ========================================================
     // ELEMENTOS DEL HTML
