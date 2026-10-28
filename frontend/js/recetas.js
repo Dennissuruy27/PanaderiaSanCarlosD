@@ -6,7 +6,9 @@
 // CONFIGURACIÓN
 // =========================================
 
-const API_BASE = "http://localhost:8080/PROYECTOWEB/api";
+
+const API_BASE =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api";
 const API_RECETAS = `${API_BASE}/recetas`;
 const API_PRODUCTOS = `${API_BASE}/productos/todos`;
 const API_SUCURSALES = `${API_BASE}/sucursales`;
