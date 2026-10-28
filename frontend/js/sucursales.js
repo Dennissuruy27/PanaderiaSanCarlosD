@@ -6,11 +6,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // CONFIGURACIÓN
     // ============================================
 
-    const API =
-        "http://localhost:8080/PROYECTOWEB/api/sucursales";
+    
+const API =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/sucursales";
 
-    const API_USUARIOS =
-        "http://localhost:8080/PROYECTOWEB/api/usuarios";
+const API_USUARIOS =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/usuarios";
+
 
     // ============================================
     // VALIDAR SESIÓN
