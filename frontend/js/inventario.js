@@ -4,10 +4,17 @@
    PANADERÍA SAN CARLOS - INVENTARIO
 ========================================= */
 
-const API_INVENTARIO = "http://localhost:8080/PROYECTOWEB/api/inventario";
-const API_SUCURSALES = "http://localhost:8080/PROYECTOWEB/api/sucursales";
-const API_PRODUCCION = "http://localhost:8080/PROYECTOWEB/api/produccion";
-const API_LOGOUT = "http://localhost:8080/PROYECTOWEB/api/usuarios/logout";
+const API_INVENTARIO =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/inventario";
+
+const API_SUCURSALES =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/sucursales";
+
+const API_PRODUCCION =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/produccion";
+
+const API_LOGOUT =
+    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/usuarios/logout";
 
 const $ = id => document.getElementById(id);
 
