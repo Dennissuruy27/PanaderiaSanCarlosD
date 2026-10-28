@@ -1,3 +1,4 @@
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
@@ -25,7 +26,6 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
 
-
     <!-- ================================================== -->
     <!-- DEPENDENCIAS                                       -->
     <!-- ================================================== -->
@@ -47,7 +47,6 @@
             <version>2.41</version>
         </dependency>
 
-
         <!-- ================================================== -->
         <!-- JSON                                               -->
         <!-- Permite que Jersey convierta objetos Java a JSON   -->
@@ -59,10 +58,9 @@
             <version>2.41</version>
         </dependency>
 
-
         <!-- ================================================== -->
         <!-- ORACLE JDBC                                        -->
-        <!-- Conexion Java -> Oracle                            -->
+        <!-- Conexion Java -> Oracle Autonomous Database        -->
         <!-- ================================================== -->
 
         <dependency>
@@ -71,6 +69,27 @@
             <version>23.3.0.23.09</version>
         </dependency>
 
+        <!-- ================================================== -->
+        <!-- ORACLE WALLET - AUTENTICACION mTLS                  -->
+        <!-- ================================================== -->
+
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>oraclepki</artifactId>
+            <version>23.3.0.23.09</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_core</artifactId>
+            <version>23.3.0.23.09</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_cert</artifactId>
+            <version>23.3.0.23.09</version>
+        </dependency>
 
         <!-- ================================================== -->
         <!-- SERVLET API                                        -->
@@ -86,14 +105,13 @@
 
     </dependencies>
 
-
     <!-- ================================================== -->
     <!-- BUILD                                              -->
     <!-- ================================================== -->
 
     <build>
 
-        <!-- Nombre que tendrá la aplicación en Tomcat -->
+        <!-- Nombre que tendra la aplicacion en Tomcat -->
         <finalName>PROYECTOWEB</finalName>
 
         <plugins>
@@ -111,7 +129,6 @@
                     <release>21</release>
                 </configuration>
             </plugin>
-
 
             <!-- ================================================== -->
             <!-- GENERAR WAR                                        -->
