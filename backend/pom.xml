@@ -17,13 +17,15 @@
     <!-- CONFIGURACION DEL PROYECTO                         -->
     <!-- ================================================== -->
     <properties>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Estamos utilizando JDK 21 -->
+        <!-- Java 21 -->
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
 
         <failOnMissingWebXml>false</failOnMissingWebXml>
+
     </properties>
 
     <!-- ================================================== -->
@@ -49,7 +51,6 @@
 
         <!-- ================================================== -->
         <!-- JSON                                               -->
-        <!-- Permite que Jersey convierta objetos Java a JSON   -->
         <!-- ================================================== -->
 
         <dependency>
@@ -60,7 +61,7 @@
 
         <!-- ================================================== -->
         <!-- ORACLE JDBC                                        -->
-        <!-- Conexion Java -> Oracle Autonomous Database        -->
+        <!-- Conexion Java con Oracle Autonomous Database       -->
         <!-- ================================================== -->
 
         <dependency>
@@ -79,21 +80,23 @@
             <version>23.3.0.23.09</version>
         </dependency>
 
+        <!-- Dependencia corregida -->
         <dependency>
             <groupId>com.oracle.database.security</groupId>
             <artifactId>osdt_core</artifactId>
-            <version>23.3.0.23.09</version>
+            <version>21.23.0.0</version>
         </dependency>
 
+        <!-- Dependencia corregida -->
         <dependency>
             <groupId>com.oracle.database.security</groupId>
             <artifactId>osdt_cert</artifactId>
-            <version>23.3.0.23.09</version>
+            <version>21.23.0.0</version>
         </dependency>
 
         <!-- ================================================== -->
         <!-- SERVLET API                                        -->
-        <!-- Tomcat proporciona esta dependencia                -->
+        <!-- Tomcat 9 proporciona esta dependencia              -->
         <!-- ================================================== -->
 
         <dependency>
@@ -111,7 +114,7 @@
 
     <build>
 
-        <!-- Nombre que tendra la aplicacion en Tomcat -->
+        <!-- Nombre del archivo WAR -->
         <finalName>PROYECTOWEB</finalName>
 
         <plugins>
@@ -131,7 +134,7 @@
             </plugin>
 
             <!-- ================================================== -->
-            <!-- GENERAR WAR                                        -->
+            <!-- GENERAR ARCHIVO WAR                                -->
             <!-- ================================================== -->
 
             <plugin>
@@ -149,3 +152,4 @@
     </build>
 
 </project>
+
