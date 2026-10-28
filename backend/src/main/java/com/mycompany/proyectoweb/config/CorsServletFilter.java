@@ -1,3 +1,4 @@
+
 package com.mycompany.proyectoweb.config;
 
 import java.io.IOException;
@@ -15,10 +16,25 @@ import javax.servlet.http.HttpServletResponse;
 @WebFilter(urlPatterns = "/api/*")
 public class CorsServletFilter implements Filter {
 
+    // ============================================
+    // VALIDAR ORIGEN PERMITIDO
+    // ============================================
+
+    private boolean origenPermitido(String origen) {
+
+        return "http://localhost:5501".equals(origen)
+                || "http://127.0.0.1:5501".equals(origen)
+                || "https://panaderiasancarlos-frontend.onrender.com".equals(origen);
+    }
+
     @Override
     public void init(FilterConfig filterConfig)
             throws ServletException {
     }
+
+    // ============================================
+    // FILTRAR SOLICITUDES
+    // ============================================
 
     @Override
     public void doFilter(
@@ -35,52 +51,51 @@ public class CorsServletFilter implements Filter {
 
         String origen = req.getHeader("Origin");
 
-        // VALIDAR ORIGEN PERMITIDO
-        boolean origenPermitido =
-                "http://localhost:5501".equals(origen)
-                || "http://127.0.0.1:5501".equals(origen);
+        boolean permitido = origenPermitido(origen);
 
-        if (origenPermitido) {
+        // ========================================
+        // CONFIGURAR CABECERAS CORS
+        // ========================================
 
-            // PERMITIR ORIGEN DEL FRONTEND
+        if (permitido) {
+
             res.setHeader(
                     "Access-Control-Allow-Origin",
                     origen
             );
 
-            // PERMITIR COOKIES DE SESIÓN
             res.setHeader(
                     "Access-Control-Allow-Credentials",
                     "true"
             );
 
-            // MÉTODOS PERMITIDOS
             res.setHeader(
                     "Access-Control-Allow-Methods",
                     "GET, POST, PUT, DELETE, OPTIONS"
             );
 
-            // ENCABEZADOS PERMITIDOS
             res.setHeader(
                     "Access-Control-Allow-Headers",
                     "Content-Type, Authorization"
             );
 
-            // DURACIÓN DEL PREFLIGHT
             res.setHeader(
                     "Access-Control-Max-Age",
                     "600"
             );
 
-            res.setHeader(
+            res.addHeader(
                     "Vary",
                     "Origin"
             );
         }
 
-        // RESPONDER DIRECTAMENTE AL PREFLIGHT
+        // ========================================
+        // RESPONDER SOLICITUD PREFLIGHT
+        // ========================================
+
         if ("OPTIONS".equalsIgnoreCase(req.getMethod())
-                && origenPermitido) {
+                && permitido) {
 
             res.setStatus(
                     HttpServletResponse.SC_NO_CONTENT
@@ -89,7 +104,10 @@ public class CorsServletFilter implements Filter {
             return;
         }
 
-        // CONTINUAR CON LA PETICIÓN NORMAL
+        // ========================================
+        // CONTINUAR SOLICITUD NORMAL
+        // ========================================
+
         chain.doFilter(request, response);
     }
 
