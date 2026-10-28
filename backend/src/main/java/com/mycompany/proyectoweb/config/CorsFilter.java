@@ -11,8 +11,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-@Provider
-@Priority(Priorities.AUTHENTICATION)
+
 public class CorsFilter implements
         ContainerRequestFilter,
         ContainerResponseFilter {
