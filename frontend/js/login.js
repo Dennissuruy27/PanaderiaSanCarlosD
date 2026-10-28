@@ -1,4 +1,13 @@
+
 document.addEventListener("DOMContentLoaded", function () {
+
+    // ============================================
+    // CONFIGURACION DEL BACKEND EN RENDER
+    // ============================================
+
+    const API_LOGIN =
+        "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/usuarios/login";
+
 
     // ============================================
     // ELEMENTOS DEL HTML
@@ -28,12 +37,12 @@ document.addEventListener("DOMContentLoaded", function () {
         "submit",
         async function (event) {
 
-            // Evita que HTML recargue la página
+            // Evitar que la pagina se recargue
             event.preventDefault();
 
 
             // ====================================
-            // OBTENER DATOS
+            // OBTENER DATOS DEL FORMULARIO
             // ====================================
 
             const usuario =
@@ -44,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             // ====================================
-            // VALIDACION
+            // VALIDAR CAMPOS
             // ====================================
 
             if (usuario === "" || clave === "") {
@@ -58,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             // ====================================
-            // PREPARAR BOTON
+            // DESHABILITAR BOTON
             // ====================================
 
             boton.disabled = true;
@@ -71,42 +80,42 @@ document.addEventListener("DOMContentLoaded", function () {
 
             try {
 
-                // =================================
-                // LLAMAR AL BACKEND
-                // =================================
+                // ====================================
+                // CONECTAR CON BACKEND EN RENDER
+                // ====================================
 
-                const respuesta =
-                    await fetch(
-                        "http://localhost:8080/PROYECTOWEB/api/usuarios/login",
-                        {
-                            method: "POST",
+                const respuesta = await fetch(
+                    API_LOGIN,
+                    {
+                        method: "POST",
 
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
 
-                            // PERMITIR COOKIES DE SESIÓN DE TOMCAT
-                            credentials: "include",
+                        // Mantener compatibilidad con
+                        // sesiones HTTP de Tomcat
+                        credentials: "include",
 
-                            body: JSON.stringify({
-                                usuario: usuario,
-                                clave: clave
-                            })
-                        }
-                    );
+                        body: JSON.stringify({
+                            usuario: usuario,
+                            clave: clave
+                        })
+                    }
+                );
 
 
-                // =================================
-                // LEER JSON
-                // =================================
+                // ====================================
+                // LEER RESPUESTA DEL BACKEND
+                // ====================================
 
                 const datos =
                     await respuesta.json();
 
 
-                // =================================
-                // ERROR HTTP
-                // =================================
+                // ====================================
+                // VALIDAR RESPUESTA HTTP
+                // ====================================
 
                 if (!respuesta.ok) {
 
@@ -119,41 +128,35 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                // =================================
+                // ====================================
                 // LOGIN CORRECTO
-                // =================================
+                // ====================================
 
                 if (datos.estado === "OK") {
 
                     mostrarExito(
-                        "Login correcto."
+                        "Inicio de sesión correcto."
                     );
 
-
-                    // Mostrar en consola
-                    // solamente para pruebas
 
                     console.log(
-                        "Usuario autenticado:",
-                        datos.usuario
+                        "Usuario autenticado correctamente."
                     );
 
 
-                    // =================================
-                    // GUARDAR USUARIO
-                    // =================================
+                    // ====================================
+                    // GUARDAR INFORMACION DEL USUARIO
+                    // ====================================
 
                     sessionStorage.setItem(
                         "usuario",
-                        JSON.stringify(
-                            datos.usuario
-                        )
+                        JSON.stringify(datos.usuario)
                     );
 
 
-                    // =================================
-                    // IR AL DASHBOARD
-                    // =================================
+                    // ====================================
+                    // REDIRIGIR AL DASHBOARD
+                    // ====================================
 
                     setTimeout(
                         function () {
@@ -177,15 +180,13 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (error) {
 
                 console.error(
-                    "Error:",
+                    "Error al conectar con el backend:",
                     error
                 );
-
 
                 mostrarError(
                     "No fue posible conectar con el servidor."
                 );
-
 
             } finally {
 
@@ -200,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ============================================
-    // MOSTRAR ERROR
+    // MOSTRAR MENSAJE DE ERROR
     // ============================================
 
     function mostrarError(texto) {
@@ -213,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ============================================
-    // MOSTRAR EXITO
+    // MOSTRAR MENSAJE DE EXITO
     // ============================================
 
     function mostrarExito(texto) {
@@ -226,7 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ============================================
-    // LIMPIAR MENSAJE
+    // LIMPIAR MENSAJES
     // ============================================
 
     function limpiarMensaje() {
