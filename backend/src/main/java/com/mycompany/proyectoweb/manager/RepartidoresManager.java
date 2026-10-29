@@ -1,10 +1,12 @@
 
+
 package com.mycompany.proyectoweb.manager;
 
 import com.mycompany.proyectoweb.config.ConexionOracle;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
@@ -16,6 +18,8 @@ import java.util.Map;
 
 public class RepartidoresManager {
 
+    // Consulta los pedidos asignados al repartidor autenticado.
+    // Este metodo ya funciona y se conserva sin cambios.
     public List<Map<String, Object>> obtenerPedidosRepartidor(
             Long idRepartidor) throws Exception {
 
@@ -63,4 +67,40 @@ public class RepartidoresManager {
 
         return pedidos;
     }
+
+    // Verifica en Oracle que el pedido pertenece al repartidor
+    // y se encuentra en una etapa valida para reportar incidencias.
+    public boolean validarPedidoAsignado(
+            Long idPedido,
+            Long idRepartidor) throws Exception {
+
+        if (idPedido == null || idPedido <= 0
+                || idRepartidor == null || idRepartidor <= 0) {
+            return false;
+        }
+
+        String sql =
+                "SELECT 1 " +
+                "FROM PEDIDO P " +
+                "INNER JOIN USUARIO U " +
+                "ON U.ID_USUARIO = P.ID_REPARTIDOR " +
+                "WHERE P.ID_PEDIDO = ? " +
+                "AND P.ID_REPARTIDOR = ? " +
+                "AND U.ROL = 'REPARTIDOR' " +
+                "AND U.ACTIVO = 1 " +
+                "AND UPPER(TRIM(P.ESTADO)) = 'DESPACHADO'";
+
+        try (Connection conexion = ConexionOracle.getConnection();
+             PreparedStatement consulta =
+                     conexion.prepareStatement(sql)) {
+
+            consulta.setLong(1, idPedido);
+            consulta.setLong(2, idRepartidor);
+
+            try (ResultSet resultado = consulta.executeQuery()) {
+                return resultado.next();
+            }
+        }
+    }
 }
+
