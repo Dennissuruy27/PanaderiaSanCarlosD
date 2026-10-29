@@ -71,6 +71,11 @@ public class PedidoController {
         boolean esSucursal() {
             return "SUCURSAL".equals(rol);
         }
+
+        // NUEVO: ROL REPARTIDOR
+        boolean esRepartidor() {
+            return "REPARTIDOR".equals(rol);
+        }
     }
 
     // =========================================================
@@ -815,11 +820,7 @@ public class PedidoController {
 
     // =========================================================
     // 14. CONSULTAR DISPONIBILIDAD DEL PEDIDO
-    //
     // GET /api/pedidos/{id}/disponibilidad
-    //
-    // ADMIN: CUALQUIER PEDIDO
-    // SUCURSAL: SOLO PEDIDOS DE SU SUCURSAL
     // =========================================================
     @GET
     @Path("{id}/disponibilidad")
@@ -830,7 +831,6 @@ public class PedidoController {
 
         try {
 
-            // VERIFICAR SESION, PEDIDO Y SUCURSAL
             Response validacion =
                     verificarAccesoPedido(usuario, id);
 
@@ -838,7 +838,6 @@ public class PedidoController {
                 return validacion;
             }
 
-            // CONSULTAR EXISTENCIAS DESDE ORACLE
             List<Map<String, Object>> productos =
                     manager.getDisponibilidadPedido(id);
 
@@ -868,24 +867,130 @@ public class PedidoController {
             Map<String, Object> respuesta = new HashMap<>();
 
             respuesta.put("idPedido", id);
-
             respuesta.put("disponible", disponible);
-
-            respuesta.put(
-                    "requiereProduccion",
-                    !disponible
-            );
-
-            respuesta.put(
-                    "cantidadTotalFaltante",
-                    totalFaltante
-            );
-
+            respuesta.put("requiereProduccion", !disponible);
+            respuesta.put("cantidadTotalFaltante", totalFaltante);
             respuesta.put("productos", productos);
-
             respuesta.put("estado", "OK");
 
             return Response.ok(respuesta).build();
+
+        } catch (Exception e) {
+            return errorInterno(e);
+        }
+    }
+
+    // =========================================================
+    // 15. ASIGNAR REPARTIDOR
+    // PUT /api/pedidos/{id}/asignar-repartidor
+    // SOLO ADMIN
+    // =========================================================
+    @PUT
+    @Path("{id}/asignar-repartidor")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response asignarRepartidor(
+            @PathParam("id") int id,
+            Map<String, Object> datos) {
+
+        UsuarioSesion usuario = obtenerUsuarioSesion();
+
+        Response validacion =
+                verificarAdministrador(usuario);
+
+        if (validacion != null) {
+            return validacion;
+        }
+
+        if (id <= 0) {
+            return idInvalido();
+        }
+
+        if (datos == null
+                || datos.get("idRepartidor") == null) {
+
+            return error(
+                    Response.Status.BAD_REQUEST,
+                    "Debe seleccionar un repartidor."
+            );
+        }
+
+        int idRepartidor;
+
+        try {
+
+            idRepartidor = Integer.parseInt(
+                    datos.get("idRepartidor").toString()
+            );
+
+        } catch (NumberFormatException e) {
+
+            return error(
+                    Response.Status.BAD_REQUEST,
+                    "El ID del repartidor no es valido."
+            );
+        }
+
+        if (idRepartidor <= 0) {
+
+            return error(
+                    Response.Status.BAD_REQUEST,
+                    "El ID del repartidor debe ser mayor que cero."
+            );
+        }
+
+        try {
+
+            Map<String, Object> resultado =
+                    manager.asignarRepartidor(
+                            id,
+                            idRepartidor
+                    );
+
+            return respuestaOperacion(
+                    resultado,
+                    Response.Status.OK
+            );
+
+        } catch (Exception e) {
+            return errorInterno(e);
+        }
+    }
+
+    // =========================================================
+    // 16. CONSULTAR PEDIDOS DEL REPARTIDOR AUTENTICADO
+    // GET /api/pedidos/mis-pedidos
+    // SOLO REPARTIDOR
+    // =========================================================
+    @GET
+    @Path("mis-pedidos")
+    public Response getMisPedidosRepartidor() {
+
+        UsuarioSesion usuario = obtenerUsuarioSesion();
+
+        if (usuario == null) {
+
+            return error(
+                    Response.Status.UNAUTHORIZED,
+                    "Debes iniciar sesion."
+            );
+        }
+
+        if (!usuario.esRepartidor()) {
+
+            return error(
+                    Response.Status.FORBIDDEN,
+                    "Solo los repartidores pueden consultar esta ruta."
+            );
+        }
+
+        try {
+
+            List<Pedido> pedidos =
+                    manager.getPedidosRepartidor(
+                            usuario.idUsuario
+                    );
+
+            return Response.ok(pedidos).build();
 
         } catch (Exception e) {
             return errorInterno(e);
