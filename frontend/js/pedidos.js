@@ -1,11 +1,9 @@
 
-
 "use strict";
 
 /* ============================================================
    PANADERÍA SAN CARLOS
-   MÓDULO DE PEDIDOS DE SUCURSALES
-   DISPONIBILIDAD AUTOMÁTICA DE INVENTARIO
+   MÓDULO DE PEDIDOS Y ASIGNACIÓN DE REPARTIDORES
 ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -14,19 +12,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     // CONFIGURACIÓN DE API
     // ========================================================
 
-    
-const API_PEDIDOS =
-    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/pedidos";
+    const BASE_API =
+        "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api";
 
-const API_PRODUCTOS =
-    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/productos";
-
-const API_SUCURSALES =
-    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/sucursales";
-
-const API_LOGOUT =
-    "https://panaderiasancarlosd.onrender.com/PROYECTOWEB/api/usuarios/logout";
-
+    const API_PEDIDOS = BASE_API + "/pedidos";
+    const API_PRODUCTOS = BASE_API + "/productos";
+    const API_SUCURSALES = BASE_API + "/sucursales";
+    const API_USUARIOS = BASE_API + "/usuarios";
+    const API_LOGOUT = API_USUARIOS + "/logout";
 
     // ========================================================
     // ELEMENTOS DEL HTML
@@ -64,6 +57,18 @@ const API_LOGOUT =
     const btnAgregarDetalleExistente =
         $("btnAgregarDetalleExistente");
 
+    const panelAsignarRepartidor =
+        $("panelAsignarRepartidor");
+
+    const selectRepartidor =
+        $("selectRepartidor");
+
+    const btnGuardarRepartidor =
+        $("btnGuardarRepartidor");
+
+    const detalleRepartidor =
+        $("detalleRepartidor");
+
     const nombreUsuario = $("nombreUsuario");
     const rolUsuario = $("rolUsuario");
     const sucursalUsuario = $("sucursalUsuario");
@@ -76,15 +81,16 @@ const API_LOGOUT =
     let pedidos = [];
     let productos = [];
     let sucursales = [];
+    let repartidores = [];
 
     let productosNuevoPedido = [];
     let pedidoDetalleActual = null;
 
     let guardandoPedido = false;
+    let guardandoRepartidor = false;
     let operacionDetalleEnCurso = false;
     let operacionEstadoEnCurso = false;
 
-    // NUEVO: DISPONIBILIDAD POR PEDIDO
     let disponibilidadPedidos = new Map();
 
     let usuarioActual = null;
@@ -92,8 +98,10 @@ const API_LOGOUT =
     let esAdmin = false;
     let esSucursal = false;
 
+    let errorCatalogoRepartidores = "";
+
     // ========================================================
-    // VERIFICAR SESIÓN
+    // VALIDAR SESIÓN
     // ========================================================
 
     const usuarioGuardado =
@@ -105,6 +113,7 @@ const API_LOGOUT =
     }
 
     try {
+
         usuarioActual = JSON.parse(usuarioGuardado);
 
         if (
@@ -116,6 +125,7 @@ const API_LOGOUT =
         }
 
     } catch (error) {
+
         sessionStorage.removeItem("usuario");
         window.location.replace("index.html");
         return;
@@ -133,10 +143,6 @@ const API_LOGOUT =
 
     const idSucursalActual =
         Number(usuarioActual.idSucursal);
-
-    // ========================================================
-    // INFORMACIÓN DEL USUARIO
-    // ========================================================
 
     const nombresRoles = {
         ADMIN: "Administrador",
@@ -158,9 +164,11 @@ const API_LOGOUT =
     // ========================================================
 
     function campo(objeto, ...nombres) {
+
         if (!objeto) return undefined;
 
         for (const nombre of nombres) {
+
             if (
                 objeto[nombre] !== undefined &&
                 objeto[nombre] !== null
@@ -173,6 +181,7 @@ const API_LOGOUT =
     }
 
     function escaparHTML(valor) {
+
         return String(valor ?? "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -182,6 +191,7 @@ const API_LOGOUT =
     }
 
     function dinero(valor) {
+
         const numero = Number(valor);
 
         return "Q " + (
@@ -193,6 +203,7 @@ const API_LOGOUT =
     }
 
     function mostrarMensaje(id, texto, tipo = "error") {
+
         const elemento = $(id);
 
         if (!elemento) return;
@@ -210,38 +221,95 @@ const API_LOGOUT =
     }
 
     function mostrarError(error, id = "mensajePedidos") {
+
         console.error(error);
 
         mostrarMensaje(
             id,
-            error?.message || "Ocurrió un error inesperado.",
+            error?.message ||
+                "Ocurrió un error inesperado.",
             "error"
         );
     }
 
     function idPedidoDe(pedido) {
+
         return Number(
             campo(pedido, "idPedido", "ID_PEDIDO")
         );
     }
 
     function idSucursalDe(pedido) {
+
         return Number(
             campo(pedido, "idSucursal", "ID_SUCURSAL")
         );
     }
 
     function estadoDe(pedido) {
+
         return String(
             campo(pedido, "estado", "ESTADO") || ""
         ).toUpperCase().trim();
     }
 
-    function normalizarLista(datos, nombrePropiedad) {
-        if (Array.isArray(datos)) return datos;
+    function idRepartidorDe(pedido) {
 
-        if (Array.isArray(datos?.[nombrePropiedad])) {
-            return datos[nombrePropiedad];
+        const id = Number(
+            campo(
+                pedido,
+                "idRepartidor",
+                "ID_REPARTIDOR"
+            )
+        );
+
+        return Number.isInteger(id) && id > 0
+            ? id
+            : null;
+    }
+
+    function nombreRepartidorDe(pedido) {
+
+        const id = idRepartidorDe(pedido);
+
+        if (!id) {
+            return "Sin asignar";
+        }
+
+        const nombre = campo(
+            pedido,
+            "nombreRepartidor",
+            "NOMBRE_REPARTIDOR"
+        );
+
+        if (nombre && String(nombre).trim()) {
+            return String(nombre);
+        }
+
+        const repartidor = repartidores.find(
+            item => item.idUsuario === id
+        );
+
+        return repartidor
+            ? repartidor.nombreUsuario
+            : "Repartidor #" + id;
+    }
+
+    function valorActivo(valor) {
+
+        return valor === 1 ||
+            valor === true ||
+            valor === "1";
+    }
+
+    function normalizarLista(datos, propiedad) {
+
+        if (Array.isArray(datos)) {
+            return datos;
+        }
+
+        if (Array.isArray(datos?.[propiedad])) {
+            return datos[propiedad];
         }
 
         if (Array.isArray(datos?.data)) {
@@ -254,6 +322,7 @@ const API_LOGOUT =
     }
 
     function formatearFecha(valor) {
+
         if (!valor) return "—";
 
         const texto = String(valor);
@@ -263,6 +332,7 @@ const API_LOGOUT =
         );
 
         if (coincidencia) {
+
             return (
                 coincidencia[3] + "/" +
                 coincidencia[2] + "/" +
@@ -274,24 +344,47 @@ const API_LOGOUT =
     }
 
     function claseEstado(estado) {
+
         switch (estado) {
+
             case "PENDIENTE":
                 return "estado-pendiente";
+
             case "APROBADO":
                 return "estado-aprobado";
+
             case "EN PRODUCCION":
                 return "estado-produccion";
+
             case "PREPARADO":
                 return "estado-preparado";
+
             case "DESPACHADO":
                 return "estado-despachado";
+
             case "ENTREGADO":
                 return "estado-entregado";
+
             case "CANCELADO":
                 return "estado-cancelado";
+
             default:
                 return "";
         }
+    }
+
+    function puedeAsignarRepartidor(pedido) {
+
+        if (!esAdmin || !pedido) {
+            return false;
+        }
+
+        return [
+            "PENDIENTE",
+            "APROBADO",
+            "EN PRODUCCION",
+            "PREPARADO"
+        ].includes(estadoDe(pedido));
     }
 
     // ========================================================
@@ -299,35 +392,50 @@ const API_LOGOUT =
     // ========================================================
 
     async function peticionAPI(url, opciones = {}) {
+
         let respuesta;
 
         try {
+
             respuesta = await fetch(url, {
+
                 ...opciones,
+
                 credentials: "include",
+
                 headers: {
+
                     Accept: "application/json",
+
                     ...(opciones.body !== undefined
-                        ? { "Content-Type": "application/json" }
+                        ? {
+                            "Content-Type":
+                                "application/json"
+                        }
                         : {}),
+
                     ...(opciones.headers || {})
                 }
             });
 
         } catch (error) {
+
             throw new Error(
-                "No se pudo conectar con Tomcat. " +
-                "Verifica que el servidor esté ejecutándose."
+                "No se pudo conectar con el servidor. " +
+                "Verifica que Tomcat esté disponible."
             );
         }
 
         const texto = await respuesta.text();
+
         let datos = {};
 
         if (texto.trim()) {
+
             try {
                 datos = JSON.parse(texto);
             } catch (error) {
+
                 throw new Error(
                     "El servidor no devolvió JSON válido."
                 );
@@ -335,9 +443,12 @@ const API_LOGOUT =
         }
 
         if (!respuesta.ok) {
+
             if (respuesta.status === 401) {
+
                 throw new Error(
-                    "Tu sesión ha expirado. Inicia sesión nuevamente."
+                    "Tu sesión ha expirado. " +
+                    "Inicia sesión nuevamente."
                 );
             }
 
@@ -353,10 +464,12 @@ const API_LOGOUT =
             typeof datos === "object" &&
             !Array.isArray(datos)
         ) {
+
             if (
                 String(datos.estado || "").toUpperCase()
                 === "ERROR"
             ) {
+
                 throw new Error(
                     datos.mensaje ||
                     "La operación no se pudo completar."
@@ -368,6 +481,7 @@ const API_LOGOUT =
                 datos.idSalida !== null &&
                 Number(datos.idSalida) <= 0
             ) {
+
                 throw new Error(
                     datos.mensaje ||
                     "Oracle rechazó la operación."
@@ -379,51 +493,63 @@ const API_LOGOUT =
     }
 
     // ========================================================
-    // CONSULTAR DISPONIBILIDAD EN FÁBRICA
-    // NUEVO ENDPOINT DE PEDIDOCONTROLLER
+    // CONSULTAR DISPONIBILIDAD DE INVENTARIO
     // ========================================================
 
     async function consultarDisponibilidad(idPedido) {
+
         const datos = await peticionAPI(
-            API_PEDIDOS + "/" + idPedido + "/disponibilidad"
+            API_PEDIDOS + "/" +
+            idPedido + "/disponibilidad"
         );
 
-        const productosDisponibilidad =
-            Array.isArray(datos.productos)
-                ? datos.productos
-                : [];
+        const lista = Array.isArray(datos.productos)
+            ? datos.productos
+            : [];
 
         const disponible =
             datos.disponible === true &&
-            productosDisponibilidad.length > 0;
+            lista.length > 0;
 
         const resultado = {
-            disponible: disponible,
+
+            disponible,
+
             requiereProduccion: !disponible,
-            productos: productosDisponibilidad,
-            cantidadTotalFaltante:
-                Number(datos.cantidadTotalFaltante || 0)
+
+            productos: lista,
+
+            cantidadTotalFaltante: Number(
+                datos.cantidadTotalFaltante || 0
+            )
         };
 
-        disponibilidadPedidos.set(idPedido, resultado);
+        disponibilidadPedidos.set(
+            idPedido,
+            resultado
+        );
 
         return resultado;
     }
 
     async function cargarDisponibilidades() {
+
         disponibilidadPedidos.clear();
 
         if (!esAdmin) return;
 
-        const pendientesRevision = pedidos.filter(pedido => {
-            const estado = estadoDe(pedido);
+        const pendientesRevision = pedidos.filter(
+            pedido => {
 
-            return estado === "APROBADO" ||
-                estado === "EN PRODUCCION";
-        });
+                const estado = estadoDe(pedido);
 
-        // Las consultas se ejecutan por lotes para evitar
-        // demasiadas peticiones simultáneas a Oracle.
+                return (
+                    estado === "APROBADO" ||
+                    estado === "EN PRODUCCION"
+                );
+            }
+        );
+
         const TAMANO_LOTE = 5;
 
         for (
@@ -431,25 +557,32 @@ const API_LOGOUT =
             inicio < pendientesRevision.length;
             inicio += TAMANO_LOTE
         ) {
+
             const lote = pendientesRevision.slice(
                 inicio,
                 inicio + TAMANO_LOTE
             );
 
             await Promise.all(
+
                 lote.map(async pedido => {
+
                     const id = idPedidoDe(pedido);
 
                     try {
+
                         await consultarDisponibilidad(id);
+
                     } catch (error) {
+
                         console.error(
-                            "No se pudo consultar disponibilidad " +
+                            "Error consultando disponibilidad " +
                             "del pedido #" + id,
                             error
                         );
 
                         disponibilidadPedidos.set(id, {
+
                             error: true,
                             disponible: false,
                             requiereProduccion: false,
@@ -466,10 +599,17 @@ const API_LOGOUT =
     // ========================================================
 
     function normalizarProducto(producto) {
+
         return {
+
             idProducto: Number(
-                campo(producto, "idProducto", "ID_PRODUCTO")
+                campo(
+                    producto,
+                    "idProducto",
+                    "ID_PRODUCTO"
+                )
             ),
+
             nombreProducto: String(
                 campo(
                     producto,
@@ -477,6 +617,7 @@ const API_LOGOUT =
                     "NOMBRE_PRODUCTO"
                 ) || ""
             ),
+
             tipoProducto: String(
                 campo(
                     producto,
@@ -484,6 +625,7 @@ const API_LOGOUT =
                     "TIPO_PRODUCTO"
                 ) || ""
             ).toUpperCase().trim(),
+
             precio: Number(
                 campo(
                     producto,
@@ -492,42 +634,61 @@ const API_LOGOUT =
                     "precio"
                 ) || 0
             ),
-            activo: campo(producto, "activo", "ACTIVO"),
-            aprobado: campo(producto, "aprobado", "APROBADO")
+
+            activo: campo(
+                producto,
+                "activo",
+                "ACTIVO"
+            ),
+
+            aprobado: campo(
+                producto,
+                "aprobado",
+                "APROBADO"
+            )
         };
     }
 
-    function valorActivo(valor) {
-        return valor === 1 ||
-            valor === true ||
-            valor === "1";
-    }
-
     async function cargarProductos() {
+
         try {
+
             const datos = await peticionAPI(
                 API_PRODUCTOS + "/todos"
             );
 
-            productos = normalizarLista(datos, "productos")
+            productos = normalizarLista(
+                datos,
+                "productos"
+            )
                 .map(normalizarProducto)
                 .filter(producto => (
+
                     producto.idProducto > 0 &&
-                    producto.tipoProducto === "PRODUCTO_TERMINADO" &&
+
+                    producto.tipoProducto ===
+                        "PRODUCTO_TERMINADO" &&
+
                     valorActivo(producto.activo) &&
+
                     valorActivo(producto.aprobado)
                 ));
 
         } catch (error) {
+
             productos = [];
             mostrarError(error);
         }
 
         llenarSelectProductos("productoPedido");
-        llenarSelectProductos("detalleProductoNuevo");
+
+        llenarSelectProductos(
+            "detalleProductoNuevo"
+        );
     }
 
     function llenarSelectProductos(idSelect) {
+
         const select = $(idSelect);
 
         if (!select) return;
@@ -536,9 +697,12 @@ const API_LOGOUT =
             '<option value="">Seleccione un producto</option>';
 
         productos.forEach(producto => {
-            const opcion = document.createElement("option");
+
+            const opcion =
+                document.createElement("option");
 
             opcion.value = producto.idProducto;
+
             opcion.textContent =
                 producto.nombreProducto +
                 " - " +
@@ -553,10 +717,17 @@ const API_LOGOUT =
     // ========================================================
 
     function normalizarSucursal(sucursal) {
+
         return {
+
             idSucursal: Number(
-                campo(sucursal, "idSucursal", "ID_SUCURSAL")
+                campo(
+                    sucursal,
+                    "idSucursal",
+                    "ID_SUCURSAL"
+                )
             ),
+
             nombreSucursal: String(
                 campo(
                     sucursal,
@@ -568,20 +739,34 @@ const API_LOGOUT =
     }
 
     async function cargarSucursales() {
-        try {
-            const datos = await peticionAPI(API_SUCURSALES);
 
-            sucursales = normalizarLista(datos, "sucursales")
+        try {
+
+            const datos = await peticionAPI(
+                API_SUCURSALES
+            );
+
+            sucursales = normalizarLista(
+                datos,
+                "sucursales"
+            )
                 .map(normalizarSucursal)
-                .filter(sucursal => sucursal.idSucursal > 0);
+                .filter(
+                    sucursal => sucursal.idSucursal > 0
+                );
 
         } catch (error) {
+
             console.error(error);
+
             sucursales = [];
 
             if (idSucursalActual > 0) {
+
                 sucursales.push({
+
                     idSucursal: idSucursalActual,
+
                     nombreSucursal:
                         "Sucursal #" + idSucursalActual
                 });
@@ -598,6 +783,7 @@ const API_LOGOUT =
     }
 
     function llenarSelectSucursales() {
+
         filtroSucursal.innerHTML =
             '<option value="">Todas las sucursales</option>';
 
@@ -605,26 +791,36 @@ const API_LOGOUT =
             '<option value="">Seleccione una sucursal</option>';
 
         sucursales.forEach(sucursal => {
+
             const opcionFiltro =
                 document.createElement("option");
 
-            opcionFiltro.value = sucursal.idSucursal;
+            opcionFiltro.value =
+                sucursal.idSucursal;
+
             opcionFiltro.textContent =
                 sucursal.nombreSucursal;
 
-            filtroSucursal.appendChild(opcionFiltro);
+            filtroSucursal.appendChild(
+                opcionFiltro
+            );
 
             const opcionPedido =
                 document.createElement("option");
 
-            opcionPedido.value = sucursal.idSucursal;
+            opcionPedido.value =
+                sucursal.idSucursal;
+
             opcionPedido.textContent =
                 sucursal.nombreSucursal;
 
-            pedidoSucursal.appendChild(opcionPedido);
+            pedidoSucursal.appendChild(
+                opcionPedido
+            );
         });
 
         if (esSucursal) {
+
             filtroSucursal.value =
                 String(idSucursalActual);
 
@@ -638,8 +834,10 @@ const API_LOGOUT =
     }
 
     function nombreSucursalDe(idSucursal) {
+
         const sucursal = sucursales.find(
-            item => item.idSucursal === Number(idSucursal)
+            item =>
+                item.idSucursal === Number(idSucursal)
         );
 
         return sucursal
@@ -648,40 +846,403 @@ const API_LOGOUT =
     }
 
     async function mostrarSucursalUsuario() {
+
         if (
             !Number.isInteger(idSucursalActual) ||
             idSucursalActual <= 0
         ) {
+
             sucursalUsuario.textContent =
                 "Sin sucursal asignada";
+
             return;
         }
 
         const sucursal = sucursales.find(
-            item => item.idSucursal === idSucursalActual
+            item =>
+                item.idSucursal === idSucursalActual
         );
 
         if (sucursal) {
+
             sucursalUsuario.textContent =
                 "Sucursal: " + sucursal.nombreSucursal;
+
             return;
         }
 
         try {
+
             const datos = await peticionAPI(
-                API_SUCURSALES + "/" + idSucursalActual
+                API_SUCURSALES + "/" +
+                idSucursalActual
             );
 
-            const encontrada = datos?.sucursal || datos;
+            const encontrada =
+                datos?.sucursal || datos;
 
             sucursalUsuario.textContent =
                 "Sucursal: " +
-                (encontrada.nombreSucursal ||
-                    "#" + idSucursalActual);
+                (
+                    encontrada.nombreSucursal ||
+                    "#" + idSucursalActual
+                );
 
         } catch (error) {
+
             sucursalUsuario.textContent =
                 "Sucursal #" + idSucursalActual;
+        }
+    }
+
+    // ========================================================
+    // REPARTIDORES
+    // GET /api/usuarios
+    // ========================================================
+
+    function normalizarRepartidor(usuario) {
+
+        return {
+
+            idUsuario: Number(
+                campo(
+                    usuario,
+                    "idUsuario",
+                    "ID_USUARIO"
+                )
+            ),
+
+            nombreUsuario: String(
+                campo(
+                    usuario,
+                    "nombreUsuario",
+                    "NOMBRE_USUARIO"
+                ) || ""
+            ),
+
+            rol: String(
+                campo(
+                    usuario,
+                    "rol",
+                    "ROL"
+                ) || ""
+            ).toUpperCase().trim(),
+
+            activo: campo(
+                usuario,
+                "activo",
+                "ACTIVO"
+            )
+        };
+    }
+
+    async function cargarRepartidores() {
+
+        if (!esAdmin) {
+            return;
+        }
+
+        repartidores = [];
+        errorCatalogoRepartidores = "";
+
+        try {
+
+            const datos = await peticionAPI(
+                API_USUARIOS
+            );
+
+            const usuarios = normalizarLista(
+                datos,
+                "usuarios"
+            );
+
+            repartidores = usuarios
+                .map(normalizarRepartidor)
+                .filter(usuario => (
+
+                    usuario.idUsuario > 0 &&
+
+                    usuario.rol === "REPARTIDOR" &&
+
+                    (
+                        usuario.activo === undefined ||
+                        valorActivo(usuario.activo)
+                    )
+                ))
+                .sort((a, b) =>
+                    a.nombreUsuario.localeCompare(
+                        b.nombreUsuario,
+                        "es"
+                    )
+                );
+
+        } catch (error) {
+
+            console.error(
+                "Error cargando repartidores:",
+                error
+            );
+
+            errorCatalogoRepartidores =
+                error.message;
+        }
+    }
+
+    function actualizarPanelRepartidor(pedido) {
+
+        if (!pedido) {
+            panelAsignarRepartidor.hidden = true;
+            return;
+        }
+
+        const idAsignado =
+            idRepartidorDe(pedido);
+
+        const nombre =
+            nombreRepartidorDe(pedido);
+
+        detalleRepartidor.textContent =
+            nombre;
+
+        detalleRepartidor.className =
+            idAsignado
+                ? "repartidor-asignado"
+                : "repartidor-sin-asignar";
+
+        const puedeAsignar =
+            puedeAsignarRepartidor(pedido);
+
+        panelAsignarRepartidor.hidden =
+            !puedeAsignar;
+
+        if (!puedeAsignar) {
+            return;
+        }
+
+        selectRepartidor.innerHTML =
+            '<option value="">Seleccione un repartidor</option>';
+
+        repartidores.forEach(repartidor => {
+
+            const opcion =
+                document.createElement("option");
+
+            opcion.value =
+                repartidor.idUsuario;
+
+            opcion.textContent =
+                repartidor.nombreUsuario;
+
+            selectRepartidor.appendChild(
+                opcion
+            );
+        });
+
+        if (idAsignado) {
+
+            const existe = repartidores.some(
+                repartidor =>
+                    repartidor.idUsuario === idAsignado
+            );
+
+            if (!existe) {
+
+                const opcion =
+                    document.createElement("option");
+
+                opcion.value = idAsignado;
+
+                opcion.textContent =
+                    nombre + " (asignado actualmente)";
+
+                opcion.disabled = true;
+
+                selectRepartidor.appendChild(
+                    opcion
+                );
+            }
+
+            selectRepartidor.value =
+                String(idAsignado);
+        }
+
+        btnGuardarRepartidor.disabled =
+            repartidores.length === 0 ||
+            guardandoRepartidor;
+
+        if (errorCatalogoRepartidores) {
+
+            mostrarMensaje(
+                "mensajeAsignarRepartidor",
+                "No se pudieron cargar los repartidores: " +
+                errorCatalogoRepartidores,
+                "error"
+            );
+
+        } else if (repartidores.length === 0) {
+
+            mostrarMensaje(
+                "mensajeAsignarRepartidor",
+                "No hay repartidores activos disponibles.",
+                "error"
+            );
+
+        } else {
+
+            mostrarMensaje(
+                "mensajeAsignarRepartidor",
+                ""
+            );
+        }
+    }
+
+    // ========================================================
+    // ASIGNAR REPARTIDOR AL PEDIDO
+    // PUT /api/pedidos/{id}/asignar-repartidor
+    // ========================================================
+
+    async function guardarAsignacionRepartidor() {
+
+        if (
+            !esAdmin ||
+            guardandoRepartidor ||
+            !pedidoDetalleActual
+        ) {
+            return;
+        }
+
+        if (!puedeAsignarRepartidor(
+            pedidoDetalleActual
+        )) {
+
+            mostrarMensaje(
+                "mensajeAsignarRepartidor",
+                "No se puede cambiar el repartidor " +
+                "después del despacho.",
+                "error"
+            );
+
+            return;
+        }
+
+        const idPedido =
+            idPedidoDe(pedidoDetalleActual);
+
+        const idRepartidor =
+            Number(selectRepartidor.value);
+
+        if (
+            !Number.isInteger(idRepartidor) ||
+            idRepartidor <= 0
+        ) {
+
+            mostrarMensaje(
+                "mensajeAsignarRepartidor",
+                "Selecciona un repartidor.",
+                "error"
+            );
+
+            return;
+        }
+
+        const repartidor = repartidores.find(
+            item =>
+                item.idUsuario === idRepartidor
+        );
+
+        if (!repartidor) {
+
+            mostrarMensaje(
+                "mensajeAsignarRepartidor",
+                "El repartidor seleccionado no está activo.",
+                "error"
+            );
+
+            return;
+        }
+
+        if (
+            idRepartidorDe(pedidoDetalleActual) ===
+            idRepartidor
+        ) {
+
+            mostrarMensaje(
+                "mensajeAsignarRepartidor",
+                "Este repartidor ya está asignado.",
+                "error"
+            );
+
+            return;
+        }
+
+        if (!window.confirm(
+            "¿Deseas asignar a " +
+            repartidor.nombreUsuario +
+            " al pedido #" +
+            idPedido +
+            "?"
+        )) {
+            return;
+        }
+
+        guardandoRepartidor = true;
+
+        btnGuardarRepartidor.disabled = true;
+
+        btnGuardarRepartidor.textContent =
+            "Guardando...";
+
+        try {
+
+            const resultado = await peticionAPI(
+                API_PEDIDOS +
+                "/" +
+                idPedido +
+                "/asignar-repartidor",
+                {
+
+                    method: "PUT",
+
+                    body: JSON.stringify({
+                        idRepartidor: idRepartidor
+                    })
+                }
+            );
+
+            await cargarPedidos();
+
+            await abrirDetallePedido(idPedido);
+
+            mostrarMensaje(
+                "mensajeAsignarRepartidor",
+                resultado?.mensaje ||
+                "Repartidor asignado correctamente.",
+                "exito"
+            );
+
+            mostrarMensaje(
+                "mensajePedidos",
+                "Repartidor actualizado en el pedido #" +
+                idPedido + ".",
+                "exito"
+            );
+
+        } catch (error) {
+
+            mostrarError(
+                error,
+                "mensajeAsignarRepartidor"
+            );
+
+        } finally {
+
+            guardandoRepartidor = false;
+
+            btnGuardarRepartidor.disabled =
+                repartidores.length === 0;
+
+            btnGuardarRepartidor.textContent =
+                "Guardar asignación";
         }
     }
 
@@ -690,9 +1251,10 @@ const API_LOGOUT =
     // ========================================================
 
     async function cargarPedidos() {
+
         tablaPedidos.innerHTML = `
             <tr>
-                <td colspan="8" class="sin-datos">
+                <td colspan="9" class="sin-datos">
                     Cargando pedidos y verificando inventario...
                 </td>
             </tr>
@@ -701,13 +1263,16 @@ const API_LOGOUT =
         btnActualizar.disabled = true;
 
         try {
+
             let url = API_PEDIDOS;
 
             if (esSucursal) {
+
                 if (
                     !Number.isInteger(idSucursalActual) ||
                     idSucursalActual <= 0
                 ) {
+
                     throw new Error(
                         "Tu usuario no tiene una sucursal asignada."
                     );
@@ -721,9 +1286,13 @@ const API_LOGOUT =
 
             const datos = await peticionAPI(url);
 
-            pedidos = normalizarLista(datos, "pedidos");
+            pedidos = normalizarLista(
+                datos,
+                "pedidos"
+            );
 
             if (esSucursal) {
+
                 pedidos = pedidos.filter(
                     pedido =>
                         idSucursalDe(pedido) ===
@@ -731,20 +1300,22 @@ const API_LOGOUT =
                 );
             }
 
-            // NUEVO: REVISAR INVENTARIO DE PEDIDOS ACTIVOS
             await cargarDisponibilidades();
 
             mostrarPedidos();
 
         } catch (error) {
+
             pedidos = [];
+
             disponibilidadPedidos.clear();
 
-            totalPedidos.textContent = "0 pedidos";
+            totalPedidos.textContent =
+                "0 pedidos";
 
             tablaPedidos.innerHTML = `
                 <tr>
-                    <td colspan="8" class="sin-datos">
+                    <td colspan="9" class="sin-datos">
                         No se pudieron cargar los pedidos.
                     </td>
                 </tr>
@@ -753,6 +1324,7 @@ const API_LOGOUT =
             mostrarError(error);
 
         } finally {
+
             btnActualizar.disabled = false;
         }
     }
@@ -762,15 +1334,22 @@ const API_LOGOUT =
     // ========================================================
 
     function mostrarPedidos() {
+
         const texto =
             buscarPedido.value.trim().toLowerCase();
 
-        const estadoSeleccionado = filtroEstado.value;
-        const sucursalSeleccionada = filtroSucursal.value;
+        const estadoSeleccionado =
+            filtroEstado.value;
+
+        const sucursalSeleccionada =
+            filtroSucursal.value;
 
         const filtrados = pedidos.filter(pedido => {
+
             const id = idPedidoDe(pedido);
-            const idSucursal = idSucursalDe(pedido);
+
+            const idSucursal =
+                idSucursalDe(pedido);
 
             const nombreSucursal = String(
                 campo(
@@ -788,10 +1367,14 @@ const API_LOGOUT =
                 ) || ""
             );
 
+            const nombreRepartidor =
+                nombreRepartidorDe(pedido);
+
             const textoPedido = (
                 id + " " +
                 nombreSucursal + " " +
-                nombreSolicitante
+                nombreSolicitante + " " +
+                nombreRepartidor
             ).toLowerCase();
 
             const coincideBusqueda =
@@ -799,11 +1382,13 @@ const API_LOGOUT =
 
             const coincideEstado =
                 !estadoSeleccionado ||
-                estadoDe(pedido) === estadoSeleccionado;
+                estadoDe(pedido) ===
+                    estadoSeleccionado;
 
             const coincideSucursal =
                 !sucursalSeleccionada ||
-                idSucursal === Number(sucursalSeleccionada);
+                idSucursal ===
+                    Number(sucursalSeleccionada);
 
             return (
                 coincideBusqueda &&
@@ -816,101 +1401,140 @@ const API_LOGOUT =
             filtrados.length + " pedidos";
 
         if (filtrados.length === 0) {
+
             tablaPedidos.innerHTML = `
                 <tr>
-                    <td colspan="8" class="sin-datos">
+                    <td colspan="9" class="sin-datos">
                         No se encontraron pedidos.
                     </td>
                 </tr>
             `;
+
             return;
         }
 
-        tablaPedidos.innerHTML = filtrados.map(pedido => {
-            const id = idPedidoDe(pedido);
-            const estado = estadoDe(pedido);
+        tablaPedidos.innerHTML =
+            filtrados.map(pedido => {
 
-            const nombreSucursal = campo(
-                pedido,
-                "nombreSucursal",
-                "NOMBRE_SUCURSAL"
-            ) || nombreSucursalDe(idSucursalDe(pedido));
+                const id = idPedidoDe(pedido);
 
-            const nombreSolicitante = campo(
-                pedido,
-                "nombreUsuario",
-                "NOMBRE_USUARIO"
-            ) || "—";
+                const estado = estadoDe(pedido);
 
-            const fecha = campo(
-                pedido,
-                "fecha",
-                "FECHA"
-            );
+                const nombreSucursal = campo(
+                    pedido,
+                    "nombreSucursal",
+                    "NOMBRE_SUCURSAL"
+                ) || nombreSucursalDe(
+                    idSucursalDe(pedido)
+                );
 
-            const total = campo(
-                pedido,
-                "total",
-                "TOTAL"
-            );
+                const nombreSolicitante = campo(
+                    pedido,
+                    "nombreUsuario",
+                    "NOMBRE_USUARIO"
+                ) || "—";
 
-            const observaciones = campo(
-                pedido,
-                "observaciones",
-                "OBSERVACIONES"
-            ) || "—";
+                const fecha = campo(
+                    pedido,
+                    "fecha",
+                    "FECHA"
+                );
 
-            return `
-                <tr>
-                    <td>${id}</td>
+                const total = campo(
+                    pedido,
+                    "total",
+                    "TOTAL"
+                );
 
-                    <td>
-                        ${escaparHTML(nombreSucursal)}
-                    </td>
+                const observaciones = campo(
+                    pedido,
+                    "observaciones",
+                    "OBSERVACIONES"
+                ) || "—";
 
-                    <td>
-                        ${escaparHTML(nombreSolicitante)}
-                    </td>
+                const nombreRepartidor =
+                    nombreRepartidorDe(pedido);
 
-                    <td>
-                        ${escaparHTML(formatearFecha(fecha))}
-                    </td>
+                const tieneRepartidor =
+                    !!idRepartidorDe(pedido);
 
-                    <td>
-                        <span class="estado ${claseEstado(estado)}">
-                            ${escaparHTML(estado)}
-                        </span>
-                    </td>
+                return `
+                    <tr>
 
-                    <td>${dinero(total)}</td>
+                        <td>${id}</td>
 
-                    <td class="texto-observaciones">
-                        ${escaparHTML(observaciones)}
-                    </td>
+                        <td>
+                            ${escaparHTML(nombreSucursal)}
+                        </td>
 
-                    <td>
-                        <div class="acciones-tabla">
-                            <button
-                                type="button"
-                                class="btn-accion"
-                                data-accion="detalle"
-                                data-id="${id}">
-                                Ver detalle
-                            </button>
+                        <td>
+                            ${escaparHTML(nombreSolicitante)}
+                        </td>
 
-                            ${generarBotonesEstado(pedido)}
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join("");
+                        <td>
+                            ${escaparHTML(
+                                formatearFecha(fecha)
+                            )}
+                        </td>
+
+                        <td>
+                            <span class="estado ${claseEstado(estado)}">
+                                ${escaparHTML(estado)}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="${
+                                tieneRepartidor
+                                    ? "repartidor-asignado"
+                                    : "repartidor-sin-asignar"
+                            }">
+                                ${escaparHTML(nombreRepartidor)}
+                            </span>
+                        </td>
+
+                        <td>
+                            ${dinero(total)}
+                        </td>
+
+                        <td class="texto-observaciones">
+                            ${escaparHTML(observaciones)}
+                        </td>
+
+                        <td>
+
+                            <div class="acciones-tabla">
+
+                                <button
+                                    type="button"
+                                    class="btn-accion"
+                                    data-accion="detalle"
+                                    data-id="${id}">
+                                    Ver detalle
+                                </button>
+
+                                ${generarBotonesEstado(pedido)}
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                `;
+            }).join("");
     }
 
     // ========================================================
-    // BOTONES SEGÚN ESTADO Y EXISTENCIAS
+    // BOTONES SEGÚN ESTADO
     // ========================================================
 
-    function botonAccion(id, accion, texto, clase = "") {
+    function botonAccion(
+        id,
+        accion,
+        texto,
+        clase = ""
+    ) {
+
         return `
             <button
                 type="button"
@@ -923,6 +1547,7 @@ const API_LOGOUT =
     }
 
     function textoInformativo(texto) {
+
         return `
             <span class="texto-estado-accion">
                 ${escaparHTML(texto)}
@@ -931,14 +1556,34 @@ const API_LOGOUT =
     }
 
     function generarBotonesEstado(pedido) {
-        if (!esAdmin) return "";
+
+        if (!esAdmin) {
+            return "";
+        }
 
         const id = idPedidoDe(pedido);
+
         const estado = estadoDe(pedido);
 
         let botones = "";
 
+        // ASIGNACIÓN ANTES DEL DESPACHO
+
+        if (puedeAsignarRepartidor(pedido)) {
+
+            botones += botonAccion(
+                id,
+                "asignar-repartidor",
+                idRepartidorDe(pedido)
+                    ? "Cambiar repartidor"
+                    : "Asignar repartidor"
+            );
+        }
+
+        // PENDIENTE
+
         if (estado === "PENDIENTE") {
+
             botones += botonAccion(
                 id,
                 "aprobar",
@@ -955,21 +1600,24 @@ const API_LOGOUT =
             return botones;
         }
 
-        // ====================================================
-        // PEDIDO APROBADO
-        // ====================================================
+        // APROBADO
 
         if (estado === "APROBADO") {
+
             const disponibilidad =
                 disponibilidadPedidos.get(id);
 
-            if (!disponibilidad || disponibilidad.error) {
+            if (
+                !disponibilidad ||
+                disponibilidad.error
+            ) {
+
                 botones += textoInformativo(
                     "No se pudo verificar el inventario"
                 );
 
             } else if (disponibilidad.disponible) {
-                // HAY INVENTARIO SUFICIENTE
+
                 botones += botonAccion(
                     id,
                     "preparar",
@@ -977,7 +1625,7 @@ const API_LOGOUT =
                 );
 
             } else {
-                // FALTA INVENTARIO
+
                 botones += botonAccion(
                     id,
                     "iniciar-produccion",
@@ -995,21 +1643,24 @@ const API_LOGOUT =
             return botones;
         }
 
-        // ====================================================
-        // PEDIDO EN PRODUCCIÓN
-        // ====================================================
+        // EN PRODUCCIÓN
 
         if (estado === "EN PRODUCCION") {
+
             const disponibilidad =
                 disponibilidadPedidos.get(id);
 
-            if (!disponibilidad || disponibilidad.error) {
+            if (
+                !disponibilidad ||
+                disponibilidad.error
+            ) {
+
                 botones += textoInformativo(
                     "No se pudo verificar el inventario"
                 );
 
             } else if (disponibilidad.disponible) {
-                // PRODUCCIÓN YA REPUSO EXISTENCIAS
+
                 botones += botonAccion(
                     id,
                     "preparar",
@@ -1017,6 +1668,7 @@ const API_LOGOUT =
                 );
 
             } else {
+
                 botones += textoInformativo(
                     "Esperando producción"
                 );
@@ -1025,15 +1677,32 @@ const API_LOGOUT =
             return botones;
         }
 
+        // PREPARADO
+
         if (estado === "PREPARADO") {
-            botones += botonAccion(
-                id,
-                "despachar",
-                "Despachar"
-            );
+
+            if (idRepartidorDe(pedido)) {
+
+                botones += botonAccion(
+                    id,
+                    "despachar",
+                    "Despachar"
+                );
+
+            } else {
+
+                botones += textoInformativo(
+                    "Asigna un repartidor para despachar"
+                );
+            }
+
+            return botones;
         }
 
+        // DESPACHADO
+
         if (estado === "DESPACHADO") {
+
             botones += botonAccion(
                 id,
                 "entregar",
@@ -1045,32 +1714,42 @@ const API_LOGOUT =
     }
 
     // ========================================================
-    // ABRIR MODAL NUEVO PEDIDO
+    // ABRIR MODAL DE NUEVO PEDIDO
     // ========================================================
 
     function abrirModalPedido() {
+
         if (!esAdmin && !esSucursal) {
+
             mostrarMensaje(
                 "mensajePedidos",
                 "No tienes permisos para crear pedidos.",
                 "error"
             );
+
             return;
         }
 
-        if (esSucursal && idSucursalActual <= 0) {
+        if (
+            esSucursal &&
+            idSucursalActual <= 0
+        ) {
+
             mostrarMensaje(
                 "mensajePedidos",
                 "No tienes una sucursal asignada.",
                 "error"
             );
+
             return;
         }
 
         formPedido.reset();
+
         productosNuevoPedido = [];
 
-        pedidoIdUsuario.value = idUsuarioActual;
+        pedidoIdUsuario.value =
+            idUsuarioActual;
 
         pedidoUsuario.value =
             usuarioActual.nombreUsuario ||
@@ -1078,21 +1757,26 @@ const API_LOGOUT =
             "Usuario";
 
         if (esSucursal) {
+
             pedidoSucursal.value =
                 String(idSucursalActual);
 
             pedidoSucursal.disabled = true;
 
             if ($("ayudaSucursal")) {
+
                 $("ayudaSucursal").textContent =
                     "El pedido será registrado para tu sucursal.";
             }
 
         } else {
+
             pedidoSucursal.disabled = false;
+
             pedidoSucursal.value = "";
 
             if ($("ayudaSucursal")) {
+
                 $("ayudaSucursal").textContent =
                     "Selecciona la sucursal solicitante.";
             }
@@ -1106,74 +1790,106 @@ const API_LOGOUT =
         );
 
         modalPedido.hidden = false;
+
         pedidoObservaciones.focus();
     }
 
     function cerrarModalPedido() {
+
         if (guardandoPedido) return;
 
         modalPedido.hidden = true;
+
         formPedido.reset();
+
         productosNuevoPedido = [];
     }
 
     // ========================================================
-    // AGREGAR PRODUCTOS AL PEDIDO NUEVO
+    // AGREGAR PRODUCTOS A PEDIDO NUEVO
     // ========================================================
 
     function agregarProductoNuevoPedido() {
+
         if (guardandoPedido) return;
 
-        const idProducto = Number(productoPedido.value);
-        const cantidad = Number(cantidadPedido.value);
+        const idProducto =
+            Number(productoPedido.value);
 
-        if (!Number.isInteger(idProducto) || idProducto <= 0) {
+        const cantidad =
+            Number(cantidadPedido.value);
+
+        if (
+            !Number.isInteger(idProducto) ||
+            idProducto <= 0
+        ) {
+
             mostrarMensaje(
                 "mensajeFormularioPedido",
                 "Selecciona un producto.",
                 "error"
             );
+
             return;
         }
 
-        if (!Number.isInteger(cantidad) || cantidad <= 0) {
+        if (
+            !Number.isInteger(cantidad) ||
+            cantidad <= 0
+        ) {
+
             mostrarMensaje(
                 "mensajeFormularioPedido",
                 "La cantidad debe ser un entero mayor que cero.",
                 "error"
             );
+
             return;
         }
 
         const producto = productos.find(
-            item => item.idProducto === idProducto
+            item =>
+                item.idProducto === idProducto
         );
 
         if (!producto) {
+
             mostrarMensaje(
                 "mensajeFormularioPedido",
                 "El producto no está disponible.",
                 "error"
             );
+
             return;
         }
 
-        const existente = productosNuevoPedido.find(
-            item => item.idProducto === idProducto
-        );
+        const existente =
+            productosNuevoPedido.find(
+                item =>
+                    item.idProducto === idProducto
+            );
 
         if (existente) {
+
             existente.cantidad += cantidad;
+
         } else {
+
             productosNuevoPedido.push({
+
                 idProducto: producto.idProducto,
-                nombreProducto: producto.nombreProducto,
+
+                nombreProducto:
+                    producto.nombreProducto,
+
                 precio: producto.precio,
-                cantidad: cantidad
+
+                cantidad
             });
         }
 
         productoPedido.value = "";
+
         cantidadPedido.value = "1";
 
         mostrarMensaje(
@@ -1185,7 +1901,9 @@ const API_LOGOUT =
     }
 
     function mostrarProductosNuevoPedido() {
+
         if (productosNuevoPedido.length === 0) {
+
             tablaProductosPedido.innerHTML = `
                 <tr>
                     <td colspan="5" class="sin-datos">
@@ -1194,56 +1912,85 @@ const API_LOGOUT =
                 </tr>
             `;
 
-            totalNuevoPedido.textContent = dinero(0);
+            totalNuevoPedido.textContent =
+                dinero(0);
+
             return;
         }
 
         tablaProductosPedido.innerHTML =
-            productosNuevoPedido.map((producto, indice) => {
-                const subtotal =
-                    producto.cantidad * producto.precio;
+            productosNuevoPedido.map(
+                (producto, indice) => {
 
-                return `
-                    <tr>
-                        <td>
-                            ${escaparHTML(producto.nombreProducto)}
-                        </td>
+                    const subtotal =
+                        producto.cantidad *
+                        producto.precio;
 
-                        <td>${producto.cantidad}</td>
-                        <td>${dinero(producto.precio)}</td>
-                        <td>${dinero(subtotal)}</td>
+                    return `
+                        <tr>
 
-                        <td>
-                            <button
-                                type="button"
-                                class="btn-accion peligro"
-                                data-quitar="${indice}">
-                                Quitar
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join("");
+                            <td>
+                                ${escaparHTML(
+                                    producto.nombreProducto
+                                )}
+                            </td>
 
-        const total = productosNuevoPedido.reduce(
-            (acumulado, producto) =>
-                acumulado +
-                producto.cantidad * producto.precio,
-            0
-        );
+                            <td>
+                                ${producto.cantidad}
+                            </td>
 
-        totalNuevoPedido.textContent = dinero(total);
+                            <td>
+                                ${dinero(producto.precio)}
+                            </td>
+
+                            <td>
+                                ${dinero(subtotal)}
+                            </td>
+
+                            <td>
+
+                                <button
+                                    type="button"
+                                    class="btn-accion peligro"
+                                    data-quitar="${indice}">
+                                    Quitar
+                                </button>
+
+                            </td>
+
+                        </tr>
+                    `;
+                }
+            ).join("");
+
+        const total =
+            productosNuevoPedido.reduce(
+                (acumulado, producto) =>
+
+                    acumulado +
+                    producto.cantidad *
+                    producto.precio,
+
+                0
+            );
+
+        totalNuevoPedido.textContent =
+            dinero(total);
     }
 
     // ========================================================
-    // GUARDAR PEDIDO
+    // GUARDAR PEDIDO NUEVO
     // ========================================================
 
     async function guardarPedido(evento) {
+
         evento.preventDefault();
 
         if (guardandoPedido) return;
-        if (!esAdmin && !esSucursal) return;
+
+        if (!esAdmin && !esSucursal) {
+            return;
+        }
 
         const idSucursal = esSucursal
             ? idSucursalActual
@@ -1252,21 +1999,30 @@ const API_LOGOUT =
         const observaciones =
             pedidoObservaciones.value.trim();
 
-        if (!Number.isInteger(idSucursal) || idSucursal <= 0) {
+        if (
+            !Number.isInteger(idSucursal) ||
+            idSucursal <= 0
+        ) {
+
             mostrarMensaje(
                 "mensajeFormularioPedido",
                 "Selecciona una sucursal válida.",
                 "error"
             );
+
             return;
         }
 
-        if (productosNuevoPedido.length === 0) {
+        if (
+            productosNuevoPedido.length === 0
+        ) {
+
             mostrarMensaje(
                 "mensajeFormularioPedido",
                 "Agrega al menos un producto al pedido.",
                 "error"
             );
+
             return;
         }
 
@@ -1279,30 +2035,42 @@ const API_LOGOUT =
         guardandoPedido = true;
 
         btnGuardarPedido.disabled = true;
-        btnGuardarPedido.textContent = "Guardando...";
+
+        btnGuardarPedido.textContent =
+            "Guardando...";
 
         let idPedidoCreado = null;
+
         let detallesGuardados = 0;
 
         try {
+
             mostrarMensaje(
                 "mensajeFormularioPedido",
                 "Registrando encabezado del pedido...",
                 "exito"
             );
 
-            // CREAR ENCABEZADO
-            const resultadoPedido = await peticionAPI(
-                API_PEDIDOS,
-                {
-                    method: "POST",
-                    body: JSON.stringify({
-                        idSucursal: idSucursal,
-                        idUsuario: idUsuarioActual,
-                        observaciones: observaciones
-                    })
-                }
-            );
+            // REGISTRAR ENCABEZADO
+            // EL REPARTIDOR ES OPCIONAL AL CREAR
+
+            const resultadoPedido =
+                await peticionAPI(
+                    API_PEDIDOS,
+                    {
+
+                        method: "POST",
+
+                        body: JSON.stringify({
+
+                            idSucursal,
+
+                            idUsuario: idUsuarioActual,
+
+                            observaciones
+                        })
+                    }
+                );
 
             idPedidoCreado = Number(
                 campo(
@@ -1316,13 +2084,18 @@ const API_LOGOUT =
                 !Number.isInteger(idPedidoCreado) ||
                 idPedidoCreado <= 0
             ) {
+
                 throw new Error(
                     "No se recibió el ID del pedido creado."
                 );
             }
 
-            // AGREGAR PRODUCTOS
-            for (const producto of productosNuevoPedido) {
+            // REGISTRAR PRODUCTOS
+
+            for (
+                const producto of productosNuevoPedido
+            ) {
+
                 mostrarMensaje(
                     "mensajeFormularioPedido",
                     "Guardando producto " +
@@ -1339,10 +2112,16 @@ const API_LOGOUT =
                     idPedidoCreado +
                     "/detalle",
                     {
+
                         method: "POST",
+
                         body: JSON.stringify({
-                            idProducto: producto.idProducto,
-                            cantidadDp: producto.cantidad
+
+                            idProducto:
+                                producto.idProducto,
+
+                            cantidadDp:
+                                producto.cantidad
                         })
                     }
                 );
@@ -1358,14 +2137,17 @@ const API_LOGOUT =
                 "mensajePedidos",
                 "Pedido #" +
                 idPedidoCreado +
-                " registrado correctamente.",
+                " registrado correctamente. " +
+                "Puedes asignarle un repartidor posteriormente.",
                 "exito"
             );
 
         } catch (error) {
+
             let mensaje = error.message;
 
             if (idPedidoCreado) {
+
                 mensaje =
                     "El pedido #" +
                     idPedidoCreado +
@@ -1386,36 +2168,58 @@ const API_LOGOUT =
             );
 
         } finally {
+
             guardandoPedido = false;
+
             btnGuardarPedido.disabled = false;
-            btnGuardarPedido.textContent = "Guardar pedido";
+
+            btnGuardarPedido.textContent =
+                "Guardar pedido";
         }
     }
 
     // ========================================================
-    // CONSULTAR DETALLE DEL PEDIDO
+    // CONSULTAR DETALLE DE PEDIDO
     // ========================================================
 
     async function abrirDetallePedido(idPedido) {
+
         try {
-            const [datosPedido, datosDetalles] =
-                await Promise.all([
-                    peticionAPI(
-                        API_PEDIDOS + "/" + idPedido
-                    ),
-                    peticionAPI(
-                        API_PEDIDOS + "/" + idPedido + "/detalle"
-                    )
-                ]);
+
+            const [
+                datosPedido,
+                datosDetalles
+            ] = await Promise.all([
+
+                peticionAPI(
+                    API_PEDIDOS + "/" + idPedido
+                ),
+
+                peticionAPI(
+                    API_PEDIDOS +
+                    "/" +
+                    idPedido +
+                    "/detalle"
+                )
+            ]);
 
             const pedido =
-                datosPedido?.pedido || datosPedido;
+                datosPedido?.pedido ||
+                datosPedido;
 
-            const detalles = Array.isArray(datosDetalles)
-                ? datosDetalles
-                : (datosDetalles?.detalles || []);
+            const detalles =
+                Array.isArray(datosDetalles)
+                    ? datosDetalles
+                    : (
+                        datosDetalles?.detalles ||
+                        []
+                    );
 
-            if (!pedido || !idPedidoDe(pedido)) {
+            if (
+                !pedido ||
+                !idPedidoDe(pedido)
+            ) {
+
                 throw new Error(
                     "No se encontró el pedido."
                 );
@@ -1423,8 +2227,10 @@ const API_LOGOUT =
 
             if (
                 esSucursal &&
-                idSucursalDe(pedido) !== idSucursalActual
+                idSucursalDe(pedido) !==
+                    idSucursalActual
             ) {
+
                 throw new Error(
                     "No puedes consultar pedidos de otra sucursal."
                 );
@@ -1433,14 +2239,17 @@ const API_LOGOUT =
             pedidoDetalleActual = pedido;
 
             $("tituloDetallePedido").textContent =
-                "Detalle del pedido #" + idPedido;
+                "Detalle del pedido #" +
+                idPedido;
 
             $("detalleSucursal").textContent =
                 campo(
                     pedido,
                     "nombreSucursal",
                     "NOMBRE_SUCURSAL"
-                ) || nombreSucursalDe(idSucursalDe(pedido));
+                ) || nombreSucursalDe(
+                    idSucursalDe(pedido)
+                );
 
             $("detalleUsuario").textContent =
                 campo(
@@ -1451,15 +2260,22 @@ const API_LOGOUT =
 
             $("detalleFecha").textContent =
                 formatearFecha(
-                    campo(pedido, "fecha", "FECHA")
+                    campo(
+                        pedido,
+                        "fecha",
+                        "FECHA"
+                    )
                 );
 
-            const estado = estadoDe(pedido);
+            const estado =
+                estadoDe(pedido);
 
-            $("detalleEstado").textContent = estado;
+            $("detalleEstado").textContent =
+                estado;
 
             $("detalleEstado").className =
-                "estado " + claseEstado(estado);
+                "estado " +
+                claseEstado(estado);
 
             $("detalleObservaciones").textContent =
                 campo(
@@ -1468,7 +2284,16 @@ const API_LOGOUT =
                     "OBSERVACIONES"
                 ) || "Sin observaciones.";
 
-            mostrarDetalleProductos(detalles, estado);
+            // REPARTIDOR
+
+            actualizarPanelRepartidor(pedido);
+
+            // PRODUCTOS
+
+            mostrarDetalleProductos(
+                detalles,
+                estado
+            );
 
             panelAgregarDetalle.hidden =
                 estado !== "PENDIENTE" ||
@@ -1482,12 +2307,18 @@ const API_LOGOUT =
             modalDetallePedido.hidden = false;
 
         } catch (error) {
+
             mostrarError(error);
         }
     }
 
-    function mostrarDetalleProductos(detalles, estado) {
+    function mostrarDetalleProductos(
+        detalles,
+        estado
+    ) {
+
         if (detalles.length === 0) {
+
             tablaDetallePedido.innerHTML = `
                 <tr>
                     <td colspan="5" class="sin-datos">
@@ -1504,6 +2335,7 @@ const API_LOGOUT =
 
         tablaDetallePedido.innerHTML =
             detalles.map(detalle => {
+
                 const idDetalle = Number(
                     campo(
                         detalle,
@@ -1512,11 +2344,12 @@ const API_LOGOUT =
                     )
                 );
 
-                const nombreProducto = campo(
-                    detalle,
-                    "nombreProducto",
-                    "NOMBRE_PRODUCTO"
-                ) || "Producto";
+                const nombreProducto =
+                    campo(
+                        detalle,
+                        "nombreProducto",
+                        "NOMBRE_PRODUCTO"
+                    ) || "Producto";
 
                 const cantidad = Number(
                     campo(
@@ -1534,15 +2367,17 @@ const API_LOGOUT =
                     ) || 0
                 );
 
-                const subtotalCampo = campo(
-                    detalle,
-                    "subtotal",
-                    "SUBTOTAL"
-                );
+                const subtotalCampo =
+                    campo(
+                        detalle,
+                        "subtotal",
+                        "SUBTOTAL"
+                    );
 
-                const subtotal = subtotalCampo == null
-                    ? cantidad * precio
-                    : Number(subtotalCampo);
+                const subtotal =
+                    subtotalCampo == null
+                        ? cantidad * precio
+                        : Number(subtotalCampo);
 
                 const puedeEliminar =
                     estado === "PENDIENTE" &&
@@ -1551,27 +2386,47 @@ const API_LOGOUT =
 
                 return `
                     <tr>
-                        <td>${escaparHTML(nombreProducto)}</td>
-                        <td>${cantidad}</td>
-                        <td>${dinero(precio)}</td>
-                        <td>${dinero(subtotal)}</td>
 
                         <td>
-                            ${puedeEliminar ? `
-                                <button
-                                    type="button"
-                                    class="btn-accion peligro"
-                                    data-eliminar-detalle="${idDetalle}">
-                                    Eliminar
-                                </button>
-                            ` : "—"}
+                            ${escaparHTML(nombreProducto)}
                         </td>
+
+                        <td>
+                            ${cantidad}
+                        </td>
+
+                        <td>
+                            ${dinero(precio)}
+                        </td>
+
+                        <td>
+                            ${dinero(subtotal)}
+                        </td>
+
+                        <td>
+
+                            ${
+                                puedeEliminar
+                                    ? `
+                                        <button
+                                            type="button"
+                                            class="btn-accion peligro"
+                                            data-eliminar-detalle="${idDetalle}">
+                                            Eliminar
+                                        </button>
+                                    `
+                                    : "—"
+                            }
+
+                        </td>
+
                     </tr>
                 `;
             }).join("");
 
         const total = detalles.reduce(
             (acumulado, detalle) => {
+
                 const cantidad = Number(
                     campo(
                         detalle,
@@ -1594,9 +2449,10 @@ const API_LOGOUT =
                     "SUBTOTAL"
                 );
 
-                const subtotal = subtotalCampo == null
-                    ? cantidad * precio
-                    : Number(subtotalCampo);
+                const subtotal =
+                    subtotalCampo == null
+                        ? cantidad * precio
+                        : Number(subtotalCampo);
 
                 return acumulado + subtotal;
             },
@@ -1608,9 +2464,16 @@ const API_LOGOUT =
     }
 
     function cerrarDetallePedido() {
-        if (operacionDetalleEnCurso) return;
+
+        if (
+            operacionDetalleEnCurso ||
+            guardandoRepartidor
+        ) {
+            return;
+        }
 
         modalDetallePedido.hidden = true;
+
         pedidoDetalleActual = null;
     }
 
@@ -1619,6 +2482,7 @@ const API_LOGOUT =
     // ========================================================
 
     async function agregarDetalleExistente() {
+
         if (
             operacionDetalleEnCurso ||
             !pedidoDetalleActual
@@ -1626,11 +2490,16 @@ const API_LOGOUT =
             return;
         }
 
-        if (estadoDe(pedidoDetalleActual) !== "PENDIENTE") {
+        if (
+            estadoDe(pedidoDetalleActual) !==
+            "PENDIENTE"
+        ) {
             return;
         }
 
-        if (!esAdmin && !esSucursal) return;
+        if (!esAdmin && !esSucursal) {
+            return;
+        }
 
         const idPedido =
             idPedidoDe(pedidoDetalleActual);
@@ -1647,30 +2516,42 @@ const API_LOGOUT =
             !Number.isInteger(cantidad) ||
             cantidad <= 0
         ) {
+
             mostrarMensaje(
                 "mensajeDetallePedido",
                 "Selecciona un producto y una cantidad válida.",
                 "error"
             );
+
             return;
         }
 
         operacionDetalleEnCurso = true;
+
         btnAgregarDetalleExistente.disabled = true;
 
         try {
+
             await peticionAPI(
-                API_PEDIDOS + "/" + idPedido + "/detalle",
+                API_PEDIDOS +
+                "/" +
+                idPedido +
+                "/detalle",
                 {
+
                     method: "POST",
+
                     body: JSON.stringify({
-                        idProducto: idProducto,
+
+                        idProducto,
+
                         cantidadDp: cantidad
                     })
                 }
             );
 
             await abrirDetallePedido(idPedido);
+
             await cargarPedidos();
 
             mostrarMensaje(
@@ -1680,13 +2561,16 @@ const API_LOGOUT =
             );
 
         } catch (error) {
+
             mostrarError(
                 error,
                 "mensajeDetallePedido"
             );
 
         } finally {
+
             operacionDetalleEnCurso = false;
+
             btnAgregarDetalleExistente.disabled = false;
         }
     }
@@ -1696,15 +2580,19 @@ const API_LOGOUT =
     // ========================================================
 
     async function eliminarDetallePedido(idDetalle) {
+
         if (
             operacionDetalleEnCurso ||
             !pedidoDetalleActual ||
-            estadoDe(pedidoDetalleActual) !== "PENDIENTE"
+            estadoDe(pedidoDetalleActual) !==
+                "PENDIENTE"
         ) {
             return;
         }
 
-        if (!esAdmin && !esSucursal) return;
+        if (!esAdmin && !esSucursal) {
+            return;
+        }
 
         if (!window.confirm(
             "¿Deseas eliminar este producto del pedido?"
@@ -1718,14 +2606,18 @@ const API_LOGOUT =
         operacionDetalleEnCurso = true;
 
         try {
+
             await peticionAPI(
-                API_PEDIDOS + "/detalle/" + idDetalle,
+                API_PEDIDOS +
+                "/detalle/" +
+                idDetalle,
                 {
                     method: "DELETE"
                 }
             );
 
             await abrirDetallePedido(idPedido);
+
             await cargarPedidos();
 
             mostrarMensaje(
@@ -1735,12 +2627,14 @@ const API_LOGOUT =
             );
 
         } catch (error) {
+
             mostrarError(
                 error,
                 "mensajeDetallePedido"
             );
 
         } finally {
+
             operacionDetalleEnCurso = false;
         }
     }
@@ -1749,24 +2643,40 @@ const API_LOGOUT =
     // CAMBIAR ESTADO DEL PEDIDO
     // ========================================================
 
-    async function cambiarEstadoPedido(idPedido, accion) {
-        if (!esAdmin || operacionEstadoEnCurso) {
+    async function cambiarEstadoPedido(
+        idPedido,
+        accion
+    ) {
+
+        if (
+            !esAdmin ||
+            operacionEstadoEnCurso
+        ) {
+
             if (!esAdmin) {
+
                 mostrarMensaje(
                     "mensajePedidos",
                     "No tienes permisos para cambiar estados.",
                     "error"
                 );
             }
+
             return;
         }
 
         const accionesPermitidas = [
+
             "aprobar",
+
             "iniciar-produccion",
+
             "preparar",
+
             "despachar",
+
             "entregar",
+
             "cancelar"
         ];
 
@@ -1775,43 +2685,72 @@ const API_LOGOUT =
         }
 
         const pedido = pedidos.find(
-            item => idPedidoDe(item) === idPedido
+            item =>
+                idPedidoDe(item) === idPedido
         );
 
         if (!pedido) {
+
             mostrarMensaje(
                 "mensajePedidos",
                 "No se encontró el pedido.",
                 "error"
             );
+
             return;
         }
 
-        const estadoActual = estadoDe(pedido);
+        const estadoActual =
+            estadoDe(pedido);
 
-        // VALIDAR NUEVAMENTE INVENTARIO ANTES DE
-        // INICIAR PRODUCCIÓN O PREPARAR
+        // VALIDAR REPARTIDOR ANTES DE DESPACHAR
+
+        if (
+            accion === "despachar" &&
+            !idRepartidorDe(pedido)
+        ) {
+
+            mostrarMensaje(
+                "mensajePedidos",
+                "Debes asignar un repartidor " +
+                "antes de despachar el pedido #" +
+                idPedido + ".",
+                "error"
+            );
+
+            return;
+        }
+
+        // VALIDAR DISPONIBILIDAD DE INVENTARIO
+
         if (
             accion === "iniciar-produccion" ||
             accion === "preparar"
         ) {
+
             try {
+
                 const disponibilidad =
-                    await consultarDisponibilidad(idPedido);
+                    await consultarDisponibilidad(
+                        idPedido
+                    );
 
                 if (
                     accion === "preparar" &&
                     !disponibilidad.disponible
                 ) {
+
                     mostrarPedidos();
 
                     mostrarMensaje(
                         "mensajePedidos",
-                        "El pedido #" + idPedido +
+                        "El pedido #" +
+                        idPedido +
                         " no puede prepararse porque " +
                         "faltan productos en fábrica.",
                         "error"
                     );
+
                     return;
                 }
 
@@ -1819,15 +2758,18 @@ const API_LOGOUT =
                     accion === "iniciar-produccion" &&
                     disponibilidad.disponible
                 ) {
+
                     mostrarPedidos();
 
                     mostrarMensaje(
                         "mensajePedidos",
-                        "El pedido #" + idPedido +
+                        "El pedido #" +
+                        idPedido +
                         " tiene existencias suficientes. " +
                         "Puedes prepararlo directamente.",
                         "error"
                     );
+
                     return;
                 }
 
@@ -1839,17 +2781,26 @@ const API_LOGOUT =
                 }
 
             } catch (error) {
+
                 mostrarError(error);
+
                 return;
             }
         }
 
         const textos = {
+
             aprobar: "aprobar",
-            "iniciar-produccion": "iniciar producción para",
+
+            "iniciar-produccion":
+                "iniciar producción para",
+
             preparar: "preparar",
+
             despachar: "despachar",
+
             entregar: "confirmar la entrega de",
+
             cancelar: "cancelar"
         };
 
@@ -1866,6 +2817,7 @@ const API_LOGOUT =
         operacionEstadoEnCurso = true;
 
         try {
+
             const resultado = await peticionAPI(
                 API_PEDIDOS +
                 "/" +
@@ -1889,14 +2841,13 @@ const API_LOGOUT =
             );
 
         } catch (error) {
-            mostrarError(error);
 
-            // Actualizar estado e inventario tras un error.
             await cargarPedidos();
 
             mostrarError(error);
 
         } finally {
+
             operacionEstadoEnCurso = false;
         }
     }
@@ -1906,6 +2857,7 @@ const API_LOGOUT =
     // ========================================================
 
     async function cerrarSesion() {
+
         if (!window.confirm(
             "¿Deseas cerrar sesión?"
         )) {
@@ -1915,24 +2867,30 @@ const API_LOGOUT =
         btnCerrarSesion.disabled = true;
 
         try {
+
             const respuesta = await fetch(
                 API_LOGOUT,
                 {
+
                     method: "POST",
+
                     credentials: "include"
                 }
             );
 
             if (!respuesta.ok) {
+
                 throw new Error(
                     "No se pudo cerrar sesión."
                 );
             }
 
             sessionStorage.removeItem("usuario");
+
             window.location.replace("index.html");
 
         } catch (error) {
+
             console.error(error);
 
             alert(
@@ -1945,7 +2903,7 @@ const API_LOGOUT =
     }
 
     // ========================================================
-    // EVENTOS DE FILTROS Y BOTONES
+    // EVENTOS DE FILTROS
     // ========================================================
 
     buscarPedido.addEventListener(
@@ -1965,8 +2923,19 @@ const API_LOGOUT =
 
     btnActualizar.addEventListener(
         "click",
-        cargarPedidos
+        async function () {
+
+            if (esAdmin) {
+                await cargarRepartidores();
+            }
+
+            await cargarPedidos();
+        }
     );
+
+    // ========================================================
+    // EVENTOS DE NUEVO PEDIDO
+    // ========================================================
 
     btnNuevoPedido.addEventListener(
         "click",
@@ -1996,11 +2965,17 @@ const API_LOGOUT =
     tablaProductosPedido.addEventListener(
         "click",
         function (evento) {
+
             const boton = evento.target.closest(
                 "[data-quitar]"
             );
 
-            if (!boton || guardandoPedido) return;
+            if (
+                !boton ||
+                guardandoPedido
+            ) {
+                return;
+            }
 
             const indice = Number(
                 boton.dataset.quitar
@@ -2011,26 +2986,39 @@ const API_LOGOUT =
                 indice >= 0 &&
                 indice < productosNuevoPedido.length
             ) {
-                productosNuevoPedido.splice(indice, 1);
+
+                productosNuevoPedido.splice(
+                    indice,
+                    1
+                );
+
                 mostrarProductosNuevoPedido();
             }
         }
     );
 
+    // ========================================================
+    // EVENTOS DE TABLA DE PEDIDOS
+    // ========================================================
+
     tablaPedidos.addEventListener(
         "click",
         async function (evento) {
+
             const boton = evento.target.closest(
                 "[data-accion]"
             );
 
-            if (!boton) return;
+            if (!boton) {
+                return;
+            }
 
             const idPedido = Number(
                 boton.dataset.id
             );
 
-            const accion = boton.dataset.accion;
+            const accion =
+                boton.dataset.accion;
 
             if (
                 !Number.isInteger(idPedido) ||
@@ -2039,9 +3027,25 @@ const API_LOGOUT =
                 return;
             }
 
-            if (accion === "detalle") {
-                await abrirDetallePedido(idPedido);
+            if (
+                accion === "detalle" ||
+                accion === "asignar-repartidor"
+            ) {
+
+                await abrirDetallePedido(
+                    idPedido
+                );
+
+                if (
+                    accion === "asignar-repartidor" &&
+                    !panelAsignarRepartidor.hidden
+                ) {
+
+                    selectRepartidor.focus();
+                }
+
             } else {
+
                 await cambiarEstadoPedido(
                     idPedido,
                     accion
@@ -2049,6 +3053,19 @@ const API_LOGOUT =
             }
         }
     );
+
+    // ========================================================
+    // EVENTOS DE ASIGNACIÓN DE REPARTIDOR
+    // ========================================================
+
+    btnGuardarRepartidor.addEventListener(
+        "click",
+        guardarAsignacionRepartidor
+    );
+
+    // ========================================================
+    // EVENTOS DE DETALLE DE PEDIDO
+    // ========================================================
 
     $("btnCerrarDetallePedido").addEventListener(
         "click",
@@ -2068,11 +3085,14 @@ const API_LOGOUT =
     tablaDetallePedido.addEventListener(
         "click",
         async function (evento) {
+
             const boton = evento.target.closest(
                 "[data-eliminar-detalle]"
             );
 
-            if (!boton) return;
+            if (!boton) {
+                return;
+            }
 
             const idDetalle = Number(
                 boton.dataset.eliminarDetalle
@@ -2082,24 +3102,26 @@ const API_LOGOUT =
                 Number.isInteger(idDetalle) &&
                 idDetalle > 0
             ) {
-                await eliminarDetallePedido(idDetalle);
+
+                await eliminarDetallePedido(
+                    idDetalle
+                );
             }
         }
     );
 
-    btnCerrarSesion.addEventListener(
-        "click",
-        cerrarSesion
-    );
-
     // ========================================================
-    // CERRAR MODALES HACIENDO CLIC FUERA
+    // CERRAR MODALES AL HACER CLIC FUERA
     // ========================================================
 
     modalPedido.addEventListener(
         "click",
         function (evento) {
-            if (evento.target === modalPedido) {
+
+            if (
+                evento.target === modalPedido
+            ) {
+
                 cerrarModalPedido();
             }
         }
@@ -2108,20 +3130,34 @@ const API_LOGOUT =
     modalDetallePedido.addEventListener(
         "click",
         function (evento) {
-            if (evento.target === modalDetallePedido) {
+
+            if (
+                evento.target === modalDetallePedido
+            ) {
+
                 cerrarDetallePedido();
             }
         }
     );
 
+    // ========================================================
+    // CERRAR MODALES CON ESC
+    // ========================================================
+
     document.addEventListener(
         "keydown",
         function (evento) {
-            if (evento.key !== "Escape") return;
+
+            if (evento.key !== "Escape") {
+                return;
+            }
 
             if (!modalDetallePedido.hidden) {
+
                 cerrarDetallePedido();
+
             } else if (!modalPedido.hidden) {
+
                 cerrarModalPedido();
             }
         }
@@ -2132,10 +3168,12 @@ const API_LOGOUT =
     // ========================================================
 
     if (esSucursal) {
+
         filtroSucursal.disabled = true;
     }
 
     if (!esAdmin && !esSucursal) {
+
         btnNuevoPedido.hidden = true;
 
         mostrarMensaje(
@@ -2152,8 +3190,12 @@ const API_LOGOUT =
     // ========================================================
 
     await Promise.all([
+
         cargarProductos(),
-        cargarSucursales()
+
+        cargarSucursales(),
+
+        cargarRepartidores()
     ]);
 
     await mostrarSucursalUsuario();
@@ -2161,5 +3203,6 @@ const API_LOGOUT =
     await cargarPedidos();
 
 });
+
 
 
