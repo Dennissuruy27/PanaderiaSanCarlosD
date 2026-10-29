@@ -1,4 +1,3 @@
-
 package com.mycompany.proyectoweb.manager;
 
 import com.mycompany.proyectoweb.config.ConexionOracle;
@@ -292,12 +291,6 @@ public class PedidoManager {
 
     // =========================================================
     // 14. CONSULTAR DISPONIBILIDAD DEL PEDIDO
-    //
-    // CONSULTA EL INVENTARIO GENERAL DE FABRICA.
-    //
-    // RESULTADO POR PRODUCTO:
-    // DISPONIBLE = EXISTENCIA SUFICIENTE
-    // PRODUCIR   = FALTA EXISTENCIA
     // =========================================================
     public List<Map<String, Object>> getDisponibilidadPedido(
             int idPedido) throws Exception {
@@ -358,6 +351,108 @@ public class PedidoManager {
         }
 
         return disponibilidad;
+    }
+
+    // =========================================================
+    // 15. ASIGNAR REPARTIDOR A UN PEDIDO
+    //
+    // SOLO SE PERMITE ANTES DEL DESPACHO.
+    // ORACLE VALIDA EL ESTADO DEL PEDIDO.
+    // =========================================================
+    public Map<String, Object> asignarRepartidor(
+            int idPedido,
+            int idRepartidor) throws Exception {
+
+        String sql =
+                "{call PKG_PEDIDOS.ASIGNAR_REPARTIDOR(?, ?, ?, ?)}";
+
+        try (Connection conexion = ConexionOracle.getConnection();
+             CallableStatement stmt = conexion.prepareCall(sql)) {
+
+            stmt.setInt(1, idPedido);
+            stmt.setInt(2, idRepartidor);
+
+            stmt.registerOutParameter(3, Types.NUMERIC);
+            stmt.registerOutParameter(4, Types.VARCHAR);
+
+            stmt.execute();
+
+            return obtenerResultado(stmt, 3, 4);
+        }
+    }
+
+    // =========================================================
+    // 16. OBTENER PEDIDOS ASIGNADOS A UN REPARTIDOR
+    // =========================================================
+    public List<Pedido> getPedidosRepartidor(
+            int idRepartidor) throws Exception {
+
+        List<Pedido> pedidos = new ArrayList<>();
+
+        String sql =
+                "{call PKG_PEDIDOS.GET_PEDIDOS_REPARTIDOR(?, ?)}";
+
+        try (Connection conexion = ConexionOracle.getConnection();
+             CallableStatement stmt = conexion.prepareCall(sql)) {
+
+            stmt.setInt(1, idRepartidor);
+            stmt.registerOutParameter(2, Types.REF_CURSOR);
+
+            stmt.execute();
+
+            try (ResultSet rs = (ResultSet) stmt.getObject(2)) {
+
+                while (rs.next()) {
+                    pedidos.add(mapearPedido(rs));
+                }
+            }
+        }
+
+        return pedidos;
+    }
+
+    // =========================================================
+    // 17. REASIGNAR REPARTIDOR POR INCIDENCIA
+    //
+    // IMPORTANTE:
+    // ESTE METODO SOLO EJECUTA EL PROCEDIMIENTO ORACLE.
+    //
+    // ANTES DE LLAMARLO, EL SERVICIO JAVA DEBE:
+    // - VALIDAR LA SESION ADMINISTRADOR.
+    // - OBTENER EL ID_ADMIN DE LA SESION.
+    // - VERIFICAR LA INCIDENCIA EN FIREBASE.
+    // - COMPROBAR QUE CORRESPONDA AL PEDIDO.
+    // - COMPROBAR QUE ESTE EN REVISION.
+    //
+    // NO EXPONER DIRECTAMENTE ESTE METODO EN UN ENDPOINT
+    // SIN ESAS VALIDACIONES.
+    // =========================================================
+    public Map<String, Object> reasignarRepartidor(
+            int idPedido,
+            int idNuevoRepartidor,
+            int idAdmin,
+            String idIncidencia,
+            String motivo) throws Exception {
+
+        String sql =
+                "{call PKG_PEDIDOS.REASIGNAR_REPARTIDOR(?, ?, ?, ?, ?, ?, ?)}";
+
+        try (Connection conexion = ConexionOracle.getConnection();
+             CallableStatement stmt = conexion.prepareCall(sql)) {
+
+            stmt.setInt(1, idPedido);
+            stmt.setInt(2, idNuevoRepartidor);
+            stmt.setInt(3, idAdmin);
+            stmt.setString(4, idIncidencia);
+            stmt.setString(5, motivo);
+
+            stmt.registerOutParameter(6, Types.NUMERIC);
+            stmt.registerOutParameter(7, Types.VARCHAR);
+
+            stmt.execute();
+
+            return obtenerResultado(stmt, 6, 7);
+        }
     }
 
     // =========================================================
@@ -427,6 +522,8 @@ public class PedidoManager {
 
     // =========================================================
     // METODO PRIVADO: MAPEAR PEDIDO
+    //
+    // ACTUALIZADO PARA INCLUIR REPARTIDOR
     // =========================================================
     private Pedido mapearPedido(ResultSet rs) throws Exception {
 
@@ -446,6 +543,20 @@ public class PedidoManager {
 
         pedido.setNombreUsuario(
                 rs.getString("NOMBRE_USUARIO"));
+
+        // NUEVO: REPARTIDOR ASIGNADO
+        Object idRepartidor = rs.getObject("ID_REPARTIDOR");
+
+        if (idRepartidor == null) {
+            pedido.setIdRepartidor(null);
+        } else {
+            pedido.setIdRepartidor(
+                    ((Number) idRepartidor).intValue()
+            );
+        }
+
+        pedido.setNombreRepartidor(
+                rs.getString("NOMBRE_REPARTIDOR"));
 
         pedido.setFecha(
                 rs.getString("FECHA"));
