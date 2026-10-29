@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Incidencias | Panadería San Carlos</title>
+
+    <link rel="stylesheet" href="css/incidencias.css">
+</head>
+
+<body>
+
+    <!-- ENCABEZADO PRINCIPAL -->
+    <header class="encabezado">
+
+        <div class="marca">
+
+            <img src="img/logotipo.png"
+                 alt="Logotipo Panadería San Carlos"
+                 class="logo">
+
+            <div class="marca-texto">
+                <h1>PANADERÍA SAN CARLOS</h1>
+                <p>El pan que alegra tu corazón</p>
+            </div>
+
+        </div>
+
+        <div class="usuario-header">
+
+            <div class="usuario-info">
+
+                <span id="nombreUsuario">Usuario</span>
+
+                <small id="rolUsuario">Rol</small>
+
+                <small id="sucursalUsuario">
+                    Cargando sucursal...
+                </small>
+
+            </div>
+
+            <button type="button" id="btnCerrarSesion">
+                Cerrar sesión
+            </button>
+
+        </div>
+
+    </header>
+
+    <!-- MENÚ HORIZONTAL -->
+    <nav class="menu">
+
+        <a href="dashboard.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="sucursales.html">Sucursales</a>
+        <a href="recetas.html">Recetas</a>
+        <a href="inventario.html">Inventario</a>
+        <a href="produccion.html">Producción</a>
+        <a href="pedidos.html">Pedidos</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="incidencias.html" class="activo">Incidencias</a>
+        <a href="reporteria.html">Reportes</a>
+
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="contenido">
+
+        <!-- TÍTULO DEL MÓDULO -->
+        <section class="titulo-modulo">
+
+            <div>
+
+                <span class="etiqueta">
+                    Administración
+                </span>
+
+                <h2>Gestión de incidencias</h2>
+
+                <p>
+                    Consulta y administra las incidencias
+                    reportadas por los repartidores durante
+                    la entrega de pedidos.
+                </p>
+
+            </div>
+
+            <button type="button"
+                    class="btn-principal"
+                    id="btnActualizar">
+
+                Actualizar incidencias
+
+            </button>
+
+        </section>
+
+        <!-- PANEL DE FILTROS -->
+        <section class="panel-filtros">
+
+            <div class="campo-busqueda">
+
+                <label for="buscarIncidencia">
+                    Buscar incidencia
+                </label>
+
+                <input type="search"
+                       id="buscarIncidencia"
+                       placeholder="Pedido, repartidor o descripción...">
+
+            </div>
+
+            <div class="campo-filtro">
+
+                <label for="filtroEstado">
+                    Estado de incidencia
+                </label>
+
+                <select id="filtroEstado">
+
+                    <option value="TODOS">
+                        Todos los estados
+                    </option>
+
+                    <option value="PENDIENTE">
+                        Pendiente
+                    </option>
+
+                    <option value="EN_REVISION">
+                        En revisión
+                    </option>
+
+                    <option value="RESUELTA">
+                        Resuelta
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="campo-filtro">
+
+                <label for="filtroTipo">
+                    Tipo de incidencia
+                </label>
+
+                <select id="filtroTipo">
+
+                    <option value="TODOS">
+                        Todos los tipos
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+        <!-- TABLA DE INCIDENCIAS -->
+        <section class="panel-tabla">
+
+            <div class="tabla-encabezado">
+
+                <div>
+
+                    <h3>Incidencias registradas</h3>
+
+                    <p>
+                        Seguimiento de reportes realizados
+                        por los repartidores.
+                    </p>
+
+                </div>
+
+                <span class="contador" id="totalIncidencias">
+                    0 incidencias
+                </span>
+
+            </div>
+
+            <div class="tabla-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID incidencia</th>
+                            <th>Pedido</th>
+                            <th>Repartidor</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tablaIncidencias">
+
+                        <tr>
+                            <td colspan="8" class="sin-datos">
+                                Cargando incidencias...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div id="mensajeIncidencias"
+                 class="mensaje"
+                 role="status"
+                 aria-live="polite">
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL DE DETALLE DE INCIDENCIA -->
+    <div id="modalIncidencia" class="modal" hidden>
+
+        <div class="modal-contenido"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="tituloModalIncidencia">
+
+            <div class="modal-encabezado">
+
+                <h2 id="tituloModalIncidencia">
+                    Detalle de incidencia
+                </h2>
+
+                <button type="button"
+                        id="btnCerrarModal"
+                        class="btn-cerrar"
+                        aria-label="Cerrar detalle">
+
+                    &times;
+
+                </button>
+
+            </div>
+
+            <div class="detalle-incidencia">
+
+                <div class="detalle-campo">
+                    <strong>ID incidencia:</strong>
+                    <span id="detalleId">—</span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Pedido:</strong>
+                    <span id="detallePedido">—</span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Repartidor:</strong>
+                    <span id="detalleRepartidor">—</span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Tipo:</strong>
+                    <span id="detalleTipo">—</span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Descripción:</strong>
+                    <p id="detalleDescripcion">—</p>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Fecha de registro:</strong>
+                    <span id="detalleFecha">—</span>
+                </div>
+
+                <div class="detalle-campo">
+                    <strong>Estado:</strong>
+                    <span id="detalleEstado">—</span>
+                </div>
+
+            </div>
+
+            <div class="modal-acciones">
+
+                <button type="button"
+                        class="btn-cancelar"
+                        id="btnCancelarModal">
+
+                    Cerrar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="pie">
+        Panadería San Carlos | Sistema administrativo
+    </footer>
+
+    <script src="js/incidencias.js"></script>
+
+</body>
+
+</html>
