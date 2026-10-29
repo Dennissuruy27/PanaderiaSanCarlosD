@@ -5,6 +5,9 @@ package com.mycompany.proyectoweb.controller;
 import com.mycompany.proyectoweb.manager.IncidenciasManager;
 import com.mycompany.proyectoweb.manager.RepartidoresManager;
 import com.mycompany.proyectoweb.model.IncidenciaRequest;
+import com.mycompany.proyectoweb.model.ActualizarEstadoIncidenciaRequest;
+import javax.ws.rs.PUT;
+import javax.ws.rs.PathParam;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -294,5 +297,115 @@ public class IncidenciasController {
             );
         }
     }
+
+    
+    // =====================================================
+    // PUT: ACTUALIZAR ESTADO DE UNA INCIDENCIA
+    // Acceso exclusivo para ADMIN
+    // =====================================================
+
+    @PUT
+    @Path("{idIncidencia}/estado")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response actualizarEstadoIncidencia(
+            @PathParam("idIncidencia") String idIncidencia,
+            ActualizarEstadoIncidenciaRequest datos) {
+
+        HttpSession sesion = obtenerSesion();
+
+        if (sesion == null
+                || sesion.getAttribute("idUsuario") == null) {
+
+            return error(
+                    Response.Status.UNAUTHORIZED,
+                    "Debe iniciar sesion."
+            );
+        }
+
+        String rol = String.valueOf(
+                sesion.getAttribute("rol")
+        );
+
+        if (!"ADMIN".equalsIgnoreCase(rol.trim())) {
+
+            return error(
+                    Response.Status.FORBIDDEN,
+                    "Solo el administrador puede actualizar incidencias."
+            );
+        }
+
+        if (idIncidencia == null
+                || idIncidencia.trim().isEmpty()
+                || datos == null
+                || datos.getEstado() == null
+                || datos.getEstado().trim().isEmpty()) {
+
+            return error(
+                    Response.Status.BAD_REQUEST,
+                    "Debe indicar la incidencia y el nuevo estado."
+            );
+        }
+
+        try {
+
+            Long idAdministrador = Long.valueOf(
+                    sesion.getAttribute("idUsuario").toString()
+            );
+
+            String nuevoEstado =
+                    datos.getEstado().trim().toUpperCase();
+
+            boolean actualizado =
+                    manager.actualizarEstadoIncidencia(
+                            idIncidencia,
+                            nuevoEstado,
+                            idAdministrador
+                    );
+
+            if (!actualizado) {
+
+                return error(
+                        Response.Status.NOT_FOUND,
+                        "La incidencia no existe."
+                );
+            }
+
+            Map<String, Object> respuesta = new HashMap<>();
+
+            respuesta.put("estado", "OK");
+            respuesta.put(
+                    "mensaje",
+                    "Estado de incidencia actualizado correctamente."
+            );
+            respuesta.put("idIncidencia", idIncidencia);
+            respuesta.put("nuevoEstado", nuevoEstado);
+
+            return Response.ok(respuesta).build();
+
+        } catch (IllegalArgumentException e) {
+
+            return error(
+                    Response.Status.BAD_REQUEST,
+                    e.getMessage()
+            );
+
+        } catch (IllegalStateException e) {
+
+            return error(
+                    Response.Status.CONFLICT,
+                    e.getMessage()
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return error(
+                    Response.Status.INTERNAL_SERVER_ERROR,
+                    "No se pudo actualizar la incidencia."
+            );
+        }
+    }
+
 }
 
