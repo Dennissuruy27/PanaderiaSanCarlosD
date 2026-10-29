@@ -1,3 +1,4 @@
+
 /* =========================================
    CONFIGURACIÓN GENERAL
 ========================================= */
@@ -336,7 +337,7 @@ body {
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 950px;
+    min-width: 1100px;
 }
 
 thead {
@@ -486,6 +487,82 @@ tbody tr:hover {
 .btn-accion:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+}
+
+/* TEXTO INFORMATIVO EN ACCIONES */
+
+.texto-estado-accion {
+    display: inline-block;
+    font-size: 12px;
+    color: #80634c;
+    line-height: 1.4;
+    max-width: 210px;
+}
+
+/* =========================================
+   REPARTIDORES
+========================================= */
+
+/* REPARTIDOR ASIGNADO EN LA TABLA */
+
+.repartidor-asignado {
+    display: inline-block;
+    color: #166534;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+/* PEDIDO SIN REPARTIDOR */
+
+.repartidor-sin-asignar {
+    display: inline-block;
+    color: #9a3412;
+    background: #ffedd5;
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* PANEL DE ASIGNACIÓN */
+
+.panel-asignar-repartidor {
+    margin-top: 22px;
+    padding: 20px;
+    background: #f5e9db;
+    border: 1px solid #ead8c5;
+    border-radius: 10px;
+}
+
+.panel-asignar-repartidor h3 {
+    font-size: 17px;
+    color: #573923;
+    margin-bottom: 9px;
+}
+
+.panel-asignar-repartidor p {
+    font-size: 13px;
+    color: #80634c;
+    line-height: 1.5;
+    margin-bottom: 18px;
+}
+
+.asignacion-repartidor-controles {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 15px;
+}
+
+.asignacion-repartidor-controles .btn-principal {
+    min-height: 43px;
+}
+
+.asignacion-repartidor-controles .form-grupo {
+    min-width: 0;
 }
 
 /* =========================================
@@ -751,7 +828,7 @@ tbody tr:hover {
     border-radius: 10px;
 }
 
-.resumen-pedido>div {
+.resumen-pedido > div {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -770,6 +847,10 @@ tbody tr:hover {
 }
 
 .resumen-pedido .estado {
+    align-self: flex-start;
+}
+
+.resumen-pedido .repartidor-sin-asignar {
     align-self: flex-start;
 }
 
@@ -927,6 +1008,14 @@ tbody tr:hover {
     .modal-grande {
         max-width: 95%;
     }
+
+    .asignacion-repartidor-controles {
+        grid-template-columns: 1fr;
+    }
+
+    .asignacion-repartidor-controles .btn-principal {
+        width: 100%;
+    }
 }
 
 /* =========================================
@@ -1043,5 +1132,17 @@ tbody tr:hover {
 
     .panel-agregar-detalle {
         padding: 15px;
+    }
+
+    .panel-asignar-repartidor {
+        padding: 15px;
+    }
+
+    .asignacion-repartidor-controles {
+        grid-template-columns: 1fr;
+    }
+
+    .asignacion-repartidor-controles .btn-principal {
+        width: 100%;
     }
 }
