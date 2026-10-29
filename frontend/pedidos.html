@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -16,7 +17,9 @@
     <header class="encabezado">
 
         <div class="marca">
-            <img src="img/logotipo.png" alt="Logotipo Panadería San Carlos" class="logo">
+            <img src="img/logotipo.png"
+                 alt="Logotipo Panadería San Carlos"
+                 class="logo">
 
             <div class="marca-texto">
                 <h1>PANADERÍA SAN CARLOS</h1>
@@ -76,7 +79,9 @@
                 </p>
             </div>
 
-            <button type="button" class="btn-principal" id="btnNuevoPedido">
+            <button type="button"
+                    class="btn-principal"
+                    id="btnNuevoPedido">
                 + Nuevo pedido
             </button>
 
@@ -90,7 +95,9 @@
                     Buscar pedido
                 </label>
 
-                <input type="search" id="buscarPedido" placeholder="Buscar por ID, sucursal o usuario...">
+                <input type="search"
+                       id="buscarPedido"
+                       placeholder="Buscar por ID, sucursal, usuario o repartidor...">
             </div>
 
             <div class="campo-filtro">
@@ -120,7 +127,9 @@
                 </select>
             </div>
 
-            <button type="button" class="btn-secundario" id="btnActualizar">
+            <button type="button"
+                    class="btn-secundario"
+                    id="btnActualizar">
                 Actualizar
             </button>
 
@@ -155,6 +164,7 @@
                             <th>Solicitado por</th>
                             <th>Fecha</th>
                             <th>Estado</th>
+                            <th>Repartidor</th>
                             <th>Total</th>
                             <th>Observaciones</th>
                             <th>Acciones</th>
@@ -163,7 +173,7 @@
 
                     <tbody id="tablaPedidos">
                         <tr>
-                            <td colspan="8" class="sin-datos">
+                            <td colspan="9" class="sin-datos">
                                 Cargando pedidos...
                             </td>
                         </tr>
@@ -173,7 +183,10 @@
 
             </div>
 
-            <div id="mensajePedidos" class="mensaje" role="status" aria-live="polite"></div>
+            <div id="mensajePedidos"
+                 class="mensaje"
+                 role="status"
+                 aria-live="polite"></div>
 
         </section>
 
@@ -184,7 +197,10 @@
     ========================================= -->
     <div id="modalPedido" class="modal" hidden>
 
-        <div class="modal-contenido modal-grande" role="dialog" aria-modal="true" aria-labelledby="tituloModalPedido">
+        <div class="modal-contenido modal-grande"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="tituloModalPedido">
 
             <div class="modal-encabezado">
 
@@ -192,7 +208,10 @@
                     Registrar nuevo pedido
                 </h2>
 
-                <button type="button" id="btnCerrarModalPedido" class="btn-cerrar" aria-label="Cerrar formulario">
+                <button type="button"
+                        id="btnCerrarModalPedido"
+                        class="btn-cerrar"
+                        aria-label="Cerrar formulario">
                     &times;
                 </button>
 
@@ -223,9 +242,12 @@
                             Usuario solicitante
                         </label>
 
-                        <input type="text" id="pedidoUsuario" readonly>
+                        <input type="text"
+                               id="pedidoUsuario"
+                               readonly>
 
-                        <input type="hidden" id="pedidoIdUsuario">
+                        <input type="hidden"
+                               id="pedidoIdUsuario">
                     </div>
 
                     <div class="form-grupo campo-completo">
@@ -233,8 +255,10 @@
                             Observaciones
                         </label>
 
-                        <textarea id="pedidoObservaciones" maxlength="500" rows="3"
-                            placeholder="Ej. Solicitud de productos para abastecer la sucursal"></textarea>
+                        <textarea id="pedidoObservaciones"
+                                  maxlength="500"
+                                  rows="3"
+                                  placeholder="Ej. Solicitud de productos para abastecer la sucursal"></textarea>
                     </div>
 
                 </div>
@@ -268,10 +292,16 @@
                                 Cantidad
                             </label>
 
-                            <input type="number" id="cantidadPedido" min="1" step="1" value="1">
+                            <input type="number"
+                                   id="cantidadPedido"
+                                   min="1"
+                                   step="1"
+                                   value="1">
                         </div>
 
-                        <button type="button" class="btn-secundario" id="btnAgregarProducto">
+                        <button type="button"
+                                class="btn-secundario"
+                                id="btnAgregarProducto">
                             + Agregar
                         </button>
 
@@ -310,15 +340,22 @@
 
                 </div>
 
-                <div id="mensajeFormularioPedido" class="mensaje-formulario" role="status" aria-live="polite"></div>
+                <div id="mensajeFormularioPedido"
+                     class="mensaje-formulario"
+                     role="status"
+                     aria-live="polite"></div>
 
                 <div class="modal-acciones">
 
-                    <button type="button" id="btnCancelarPedido" class="btn-cancelar">
+                    <button type="button"
+                            id="btnCancelarPedido"
+                            class="btn-cancelar">
                         Cancelar
                     </button>
 
-                    <button type="submit" id="btnGuardarPedido" class="btn-guardar">
+                    <button type="submit"
+                            id="btnGuardarPedido"
+                            class="btn-guardar">
                         Guardar pedido
                     </button>
 
@@ -335,7 +372,10 @@
     ========================================= -->
     <div id="modalDetallePedido" class="modal" hidden>
 
-        <div class="modal-contenido modal-grande" role="dialog" aria-modal="true" aria-labelledby="tituloDetallePedido">
+        <div class="modal-contenido modal-grande"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="tituloDetallePedido">
 
             <div class="modal-encabezado">
 
@@ -343,12 +383,16 @@
                     Detalle del pedido
                 </h2>
 
-                <button type="button" id="btnCerrarDetallePedido" class="btn-cerrar" aria-label="Cerrar detalle">
+                <button type="button"
+                        id="btnCerrarDetallePedido"
+                        class="btn-cerrar"
+                        aria-label="Cerrar detalle">
                     &times;
                 </button>
 
             </div>
 
+            <!-- RESUMEN -->
             <div class="resumen-pedido">
 
                 <div>
@@ -373,8 +417,58 @@
                     </span>
                 </div>
 
+                <div>
+                    <small>Repartidor asignado</small>
+                    <strong id="detalleRepartidor"
+                            class="repartidor-sin-asignar">
+                        Sin asignar
+                    </strong>
+                </div>
+
             </div>
 
+            <!-- ASIGNACIÓN DE REPARTIDOR -->
+            <div id="panelAsignarRepartidor"
+                 class="panel-asignar-repartidor"
+                 hidden>
+
+                <h3>Asignación de repartidor</h3>
+
+                <p>
+                    Selecciona un repartidor activo.
+                    Puedes cambiarlo antes del despacho.
+                </p>
+
+                <div class="asignacion-repartidor-controles">
+
+                    <div class="form-grupo">
+                        <label for="selectRepartidor">
+                            Repartidor
+                        </label>
+
+                        <select id="selectRepartidor">
+                            <option value="">
+                                Cargando repartidores...
+                            </option>
+                        </select>
+                    </div>
+
+                    <button type="button"
+                            id="btnGuardarRepartidor"
+                            class="btn-principal">
+                        Guardar asignación
+                    </button>
+
+                </div>
+
+                <div id="mensajeAsignarRepartidor"
+                     class="mensaje-formulario"
+                     role="status"
+                     aria-live="polite"></div>
+
+            </div>
+
+            <!-- OBSERVACIONES -->
             <div class="detalle-observaciones">
                 <h3>Observaciones</h3>
                 <p id="detalleObservaciones">
@@ -382,6 +476,7 @@
                 </p>
             </div>
 
+            <!-- PRODUCTOS -->
             <div class="seccion-detalles">
 
                 <div class="seccion-detalles-titulo">
@@ -389,6 +484,7 @@
                 </div>
 
                 <div class="tabla-responsive tabla-detalles">
+
                     <table>
                         <thead>
                             <tr>
@@ -408,6 +504,7 @@
                             </tr>
                         </tbody>
                     </table>
+
                 </div>
 
                 <div class="total-pedido">
@@ -418,7 +515,9 @@
                 </div>
 
                 <!-- AGREGAR PRODUCTOS A PEDIDO PENDIENTE -->
-                <div id="panelAgregarDetalle" class="panel-agregar-detalle" hidden>
+                <div id="panelAgregarDetalle"
+                     class="panel-agregar-detalle"
+                     hidden>
 
                     <h3>Agregar producto al pedido</h3>
 
@@ -441,10 +540,16 @@
                                 Cantidad
                             </label>
 
-                            <input type="number" id="detalleCantidadNueva" min="1" step="1" value="1">
+                            <input type="number"
+                                   id="detalleCantidadNueva"
+                                   min="1"
+                                   step="1"
+                                   value="1">
                         </div>
 
-                        <button type="button" id="btnAgregarDetalleExistente" class="btn-secundario">
+                        <button type="button"
+                                id="btnAgregarDetalleExistente"
+                                class="btn-secundario">
                             + Agregar
                         </button>
 
@@ -454,11 +559,16 @@
 
             </div>
 
-            <div id="mensajeDetallePedido" class="mensaje-formulario" role="status" aria-live="polite"></div>
+            <div id="mensajeDetallePedido"
+                 class="mensaje-formulario"
+                 role="status"
+                 aria-live="polite"></div>
 
             <div class="modal-acciones">
 
-                <button type="button" id="btnCerrarDetalleInferior" class="btn-cancelar">
+                <button type="button"
+                        id="btnCerrarDetalleInferior"
+                        class="btn-cancelar">
                     Cerrar
                 </button>
 
@@ -478,3 +588,4 @@
 </body>
 
 </html>
+
