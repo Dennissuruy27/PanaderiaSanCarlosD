@@ -1,19 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.proyectoweb.model;
 
-/**
- *
- * @author Dennis Suruy
- */
 public class Pedido {
+
     private int idPedido;
     private int idSucursal;
     private String nombreSucursal;
     private int idUsuario;
     private String nombreUsuario;
+
+    // REPARTIDOR ASIGNADO
+    private Integer idRepartidor;
+    private String nombreRepartidor;
+
     private String fecha;
     private String estado;
     private String observaciones;
@@ -61,6 +59,30 @@ public class Pedido {
     public void setNombreUsuario(String nombreUsuario) {
         this.nombreUsuario = nombreUsuario;
     }
+
+    // ============================================
+    // REPARTIDOR
+    // ============================================
+
+    public Integer getIdRepartidor() {
+        return idRepartidor;
+    }
+
+    public void setIdRepartidor(Integer idRepartidor) {
+        this.idRepartidor = idRepartidor;
+    }
+
+    public String getNombreRepartidor() {
+        return nombreRepartidor;
+    }
+
+    public void setNombreRepartidor(String nombreRepartidor) {
+        this.nombreRepartidor = nombreRepartidor;
+    }
+
+    // ============================================
+    // DATOS DEL PEDIDO
+    // ============================================
 
     public String getFecha() {
         return fecha;
