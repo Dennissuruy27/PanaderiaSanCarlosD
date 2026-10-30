@@ -2,7 +2,6 @@
 package com.mycompany.proyectoweb.controller;
 
 import com.mycompany.proyectoweb.manager.PedidoManager;
-
 import com.mycompany.proyectoweb.model.Pedido;
 import com.mycompany.proyectoweb.model.PedidoRequest;
 import com.mycompany.proyectoweb.model.PedidoDetalle;
@@ -42,23 +41,20 @@ public class PedidoController {
     @Context
     private HttpServletRequest request;
 
-    // =========================================================
-    // CLASE INTERNA: USUARIO AUTENTICADO
-    // =========================================================
+    // ==============================================
+    // USUARIO AUTENTICADO
+    // ==============================================
     private static class UsuarioSesion {
 
         final int idUsuario;
         final int idSucursal;
         final String rol;
 
-        UsuarioSesion(
-                int idUsuario,
-                int idSucursal,
-                String rol) {
+        UsuarioSesion(int idUsuario, int idSucursal,
+                      String rol) {
 
             this.idUsuario = idUsuario;
             this.idSucursal = idSucursal;
-
             this.rol = rol == null
                     ? ""
                     : rol.trim().toUpperCase();
@@ -72,15 +68,14 @@ public class PedidoController {
             return "SUCURSAL".equals(rol);
         }
 
-        // NUEVO: ROL REPARTIDOR
         boolean esRepartidor() {
             return "REPARTIDOR".equals(rol);
         }
     }
 
-    // =========================================================
-    // OBTENER USUARIO DESDE LA SESION HTTP
-    // =========================================================
+    // ==============================================
+    // OBTENER USUARIO DE LA SESION HTTP
+    // ==============================================
     private UsuarioSesion obtenerUsuarioSesion() {
 
         if (request == null) {
@@ -146,9 +141,9 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
-    // VALIDAR SESION Y ROL
-    // =========================================================
+    // ==============================================
+    // VALIDAR SESION: ADMIN Y SUCURSAL
+    // ==============================================
     private Response verificarSesion(
             UsuarioSesion usuario) {
 
@@ -178,9 +173,9 @@ public class PedidoController {
         return null;
     }
 
-    // =========================================================
-    // VALIDAR PERMISOS DE ADMINISTRADOR
-    // =========================================================
+    // ==============================================
+    // VALIDAR ADMINISTRADOR
+    // ==============================================
     private Response verificarAdministrador(
             UsuarioSesion usuario) {
 
@@ -200,9 +195,9 @@ public class PedidoController {
         return null;
     }
 
-    // =========================================================
+    // ==============================================
     // VALIDAR ACCESO A SUCURSAL
-    // =========================================================
+    // ==============================================
     private Response verificarAccesoSucursal(
             UsuarioSesion usuario,
             int idSucursal) {
@@ -220,12 +215,12 @@ public class PedidoController {
             );
         }
 
-        // ADMIN: TODAS LAS SUCURSALES
+        // ADMIN puede acceder a todas las sucursales
         if (usuario.esAdmin()) {
             return null;
         }
 
-        // SUCURSAL: SOLO SU SUCURSAL
+        // SUCURSAL solamente a la propia
         if (usuario.idSucursal != idSucursal) {
             return error(
                     Response.Status.FORBIDDEN,
@@ -236,9 +231,10 @@ public class PedidoController {
         return null;
     }
 
-    // =========================================================
+    // ==============================================
     // VALIDAR ACCESO A PEDIDO
-    // =========================================================
+    // ADMIN Y SUCURSAL
+    // ==============================================
     private Response verificarAccesoPedido(
             UsuarioSesion usuario,
             int idPedido) throws Exception {
@@ -268,10 +264,10 @@ public class PedidoController {
         );
     }
 
-    // =========================================================
-    // 1. CONSULTAR PEDIDOS
+    // ==============================================
+    // 1. CONSULTAR TODOS LOS PEDIDOS
     // GET /api/pedidos
-    // =========================================================
+    // ==============================================
     @GET
     public Response getPedidos() {
 
@@ -305,10 +301,10 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 2. CONSULTAR PEDIDO POR ID
     // GET /api/pedidos/{id}
-    // =========================================================
+    // ==============================================
     @GET
     @Path("{id}")
     public Response getPedido(
@@ -334,10 +330,10 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 3. CREAR PEDIDO
     // POST /api/pedidos
-    // =========================================================
+    // ==============================================
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response crearPedido(
@@ -371,8 +367,7 @@ public class PedidoController {
 
         try {
 
-            // UTILIZAR EL USUARIO AUTENTICADO,
-            // NO EL ID ENVIADO POR JAVASCRIPT.
+            // El usuario se obtiene de la sesion
             pedido.setIdUsuario(usuario.idUsuario);
 
             Map<String, Object> resultado =
@@ -388,10 +383,10 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
-    // 4. AGREGAR PRODUCTO AL PEDIDO
+    // ==============================================
+    // 4. AGREGAR PRODUCTO A UN PEDIDO
     // POST /api/pedidos/{id}/detalle
-    // =========================================================
+    // ==============================================
     @POST
     @Path("{id}/detalle")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -430,10 +425,7 @@ public class PedidoController {
             }
 
             Map<String, Object> resultado =
-                    manager.agregarDetallePedido(
-                            id,
-                            detalle
-                    );
+                    manager.agregarDetallePedido(id, detalle);
 
             return respuestaOperacion(
                     resultado,
@@ -445,10 +437,14 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
-    // 5. CONSULTAR PRODUCTOS DE UN PEDIDO
+    // ==============================================
+    // 5. CONSULTAR DETALLE DEL PEDIDO
     // GET /api/pedidos/{id}/detalle
-    // =========================================================
+    //
+    // ADMIN: pedidos autorizados
+    // SUCURSAL: pedidos de su sucursal
+    // REPARTIDOR: solo pedidos asignados
+    // ==============================================
     @GET
     @Path("{id}/detalle")
     public Response getDetallePedido(
@@ -456,13 +452,55 @@ public class PedidoController {
 
         UsuarioSesion usuario = obtenerUsuarioSesion();
 
+        if (usuario == null) {
+            return error(
+                    Response.Status.UNAUTHORIZED,
+                    "Debes iniciar sesion."
+            );
+        }
+
+        if (id <= 0) {
+            return idInvalido();
+        }
+
         try {
 
-            Response validacion =
-                    verificarAccesoPedido(usuario, id);
+            if (usuario.esRepartidor()) {
 
-            if (validacion != null) {
-                return validacion;
+                // Consultar los pedidos que Oracle
+                // tiene asignados al usuario autenticado.
+                List<Pedido> asignados =
+                        manager.getPedidosRepartidor(
+                                usuario.idUsuario
+                        );
+
+                boolean tieneAcceso = false;
+
+                for (Pedido pedido : asignados) {
+
+                    if (pedido.getIdPedido() == id) {
+                        tieneAcceso = true;
+                        break;
+                    }
+                }
+
+                if (!tieneAcceso) {
+                    return error(
+                            Response.Status.FORBIDDEN,
+                            "El pedido no esta asignado a este repartidor."
+                    );
+                }
+
+            } else {
+
+                // ADMIN y SUCURSAL mantienen
+                // las validaciones anteriores.
+                Response validacion =
+                        verificarAccesoPedido(usuario, id);
+
+                if (validacion != null) {
+                    return validacion;
+                }
             }
 
             List<PedidoDetalle> detalles =
@@ -475,10 +513,10 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 6. CONSULTAR PEDIDOS POR SUCURSAL
     // GET /api/pedidos/sucursal/{id}
-    // =========================================================
+    // ==============================================
     @GET
     @Path("sucursal/{id}")
     public Response getPedidosSucursal(
@@ -505,11 +543,11 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 7. APROBAR PEDIDO
     // PUT /api/pedidos/{id}/aprobar
     // SOLO ADMIN
-    // =========================================================
+    // ==============================================
     @PUT
     @Path("{id}/aprobar")
     public Response aprobarPedido(
@@ -543,11 +581,11 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 8. INICIAR PRODUCCION
     // PUT /api/pedidos/{id}/iniciar-produccion
     // SOLO ADMIN
-    // =========================================================
+    // ==============================================
     @PUT
     @Path("{id}/iniciar-produccion")
     public Response iniciarProduccionPedido(
@@ -581,11 +619,11 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 9. PREPARAR PEDIDO
     // PUT /api/pedidos/{id}/preparar
     // SOLO ADMIN
-    // =========================================================
+    // ==============================================
     @PUT
     @Path("{id}/preparar")
     public Response prepararPedido(
@@ -619,11 +657,11 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 10. DESPACHAR PEDIDO
     // PUT /api/pedidos/{id}/despachar
     // SOLO ADMIN
-    // =========================================================
+    // ==============================================
     @PUT
     @Path("{id}/despachar")
     public Response despacharPedido(
@@ -657,11 +695,11 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 11. ENTREGAR PEDIDO
     // PUT /api/pedidos/{id}/entregar
     // SOLO ADMIN
-    // =========================================================
+    // ==============================================
     @PUT
     @Path("{id}/entregar")
     public Response entregarPedido(
@@ -695,11 +733,11 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 12. CANCELAR PEDIDO
     // PUT /api/pedidos/{id}/cancelar
     // SOLO ADMIN
-    // =========================================================
+    // ==============================================
     @PUT
     @Path("{id}/cancelar")
     public Response cancelarPedido(
@@ -733,10 +771,10 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 13. ELIMINAR PRODUCTO DE UN PEDIDO
     // DELETE /api/pedidos/detalle/{id}
-    // =========================================================
+    // ==============================================
     @DELETE
     @Path("detalle/{id}")
     public Response eliminarDetallePedido(
@@ -762,11 +800,8 @@ public class PedidoController {
             List<Pedido> lista;
 
             if (usuario.esAdmin()) {
-
                 lista = manager.getPedidos();
-
             } else {
-
                 lista = manager.getPedidosSucursal(
                         usuario.idSucursal
                 );
@@ -818,10 +853,10 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 14. CONSULTAR DISPONIBILIDAD DEL PEDIDO
     // GET /api/pedidos/{id}/disponibilidad
-    // =========================================================
+    // ==============================================
     @GET
     @Path("{id}/disponibilidad")
     public Response getDisponibilidadPedido(
@@ -842,7 +877,6 @@ public class PedidoController {
                     manager.getDisponibilidadPedido(id);
 
             boolean disponible = !productos.isEmpty();
-
             double totalFaltante = 0;
 
             for (Map<String, Object> producto : productos) {
@@ -880,11 +914,11 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // 15. ASIGNAR REPARTIDOR
     // PUT /api/pedidos/{id}/asignar-repartidor
     // SOLO ADMIN
-    // =========================================================
+    // ==============================================
     @PUT
     @Path("{id}/asignar-repartidor")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -931,7 +965,6 @@ public class PedidoController {
         }
 
         if (idRepartidor <= 0) {
-
             return error(
                     Response.Status.BAD_REQUEST,
                     "El ID del repartidor debe ser mayor que cero."
@@ -956,11 +989,11 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
-    // 16. CONSULTAR PEDIDOS DEL REPARTIDOR AUTENTICADO
+    // ==============================================
+    // 16. PEDIDOS DEL REPARTIDOR AUTENTICADO
     // GET /api/pedidos/mis-pedidos
     // SOLO REPARTIDOR
-    // =========================================================
+    // ==============================================
     @GET
     @Path("mis-pedidos")
     public Response getMisPedidosRepartidor() {
@@ -968,7 +1001,6 @@ public class PedidoController {
         UsuarioSesion usuario = obtenerUsuarioSesion();
 
         if (usuario == null) {
-
             return error(
                     Response.Status.UNAUTHORIZED,
                     "Debes iniciar sesion."
@@ -976,7 +1008,6 @@ public class PedidoController {
         }
 
         if (!usuario.esRepartidor()) {
-
             return error(
                     Response.Status.FORBIDDEN,
                     "Solo los repartidores pueden consultar esta ruta."
@@ -997,9 +1028,9 @@ public class PedidoController {
         }
     }
 
-    // =========================================================
+    // ==============================================
     // RESPUESTA DE OPERACIONES ORACLE
-    // =========================================================
+    // ==============================================
     private Response respuestaOperacion(
             Map<String, Object> resultado,
             Response.Status estadoExito) {
@@ -1038,26 +1069,24 @@ public class PedidoController {
                 .build();
     }
 
-    // =========================================================
+    // ==============================================
     // VALIDAR ID
-    // =========================================================
+    // ==============================================
     private Response idInvalido() {
-
         return error(
                 Response.Status.BAD_REQUEST,
                 "El ID del pedido debe ser mayor que cero."
         );
     }
 
-    // =========================================================
+    // ==============================================
     // RESPUESTA DE ERROR
-    // =========================================================
+    // ==============================================
     private Response error(
             Response.Status estado,
             String mensaje) {
 
-        Map<String, Object> respuesta =
-                new HashMap<>();
+        Map<String, Object> respuesta = new HashMap<>();
 
         respuesta.put("estado", "ERROR");
         respuesta.put("mensaje", mensaje);
@@ -1067,9 +1096,9 @@ public class PedidoController {
                 .build();
     }
 
-    // =========================================================
+    // ==============================================
     // ERROR INTERNO
-    // =========================================================
+    // ==============================================
     private Response errorInterno(Exception e) {
 
         LOGGER.log(
@@ -1084,6 +1113,7 @@ public class PedidoController {
         );
     }
 }
+
 
 
 
