@@ -702,89 +702,59 @@ public class PedidoController {
     // ADMIN O REPARTIDOR ASIGNADO
     // REPARTIDOR: SOLO DESPACHADO
     // ==============================================
-    @PUT
-    @Path("{id}/entregar")
-    public Response entregarPedido(
-            @PathParam("id") int id) {
+ 
+@PUT
+@Path("{id}/entregar")
+public Response entregarPedido(
+        @PathParam("id") int id) {
 
-        UsuarioSesion usuario = obtenerUsuarioSesion();
+    UsuarioSesion usuario = obtenerUsuarioSesion();
 
-        if (usuario == null) {
-            return error(
-                    Response.Status.UNAUTHORIZED,
-                    "Debes iniciar sesion."
-            );
-        }
+    if (usuario == null) {
+        return error(
+                Response.Status.UNAUTHORIZED,
+                "Debes iniciar sesion."
+        );
+    }
 
-        if (id <= 0) {
-            return idInvalido();
-        }
+    if (id <= 0) {
+        return idInvalido();
+    }
 
-        try {
+    try {
 
-            if (usuario.esRepartidor()) {
+        Map<String, Object> resultado;
 
-                // Obtener pedidos del repartidor
-                // utilizando su ID de sesion.
-                List<Pedido> asignados =
-                        manager.getPedidosRepartidor(
-                                usuario.idUsuario
-                        );
+        if (usuario.esRepartidor()) {
 
-                Pedido pedidoAsignado = null;
-
-                for (Pedido pedido : asignados) {
-
-                    if (pedido.getIdPedido() == id) {
-                        pedidoAsignado = pedido;
-                        break;
-                    }
-                }
-
-                // Validar propiedad del pedido
-                if (pedidoAsignado == null) {
-
-                    return error(
-                            Response.Status.FORBIDDEN,
-                            "Este pedido no esta asignado a tu usuario."
+            resultado =
+                    manager.entregarPedidoRepartidor(
+                            id,
+                            usuario.idUsuario
                     );
-                }
 
-                // Validar estado permitido
-                if (!"DESPACHADO".equalsIgnoreCase(
-                        pedidoAsignado.getEstado())) {
+        } else {
 
-                    return error(
-                            Response.Status.CONFLICT,
-                            "Solo puedes entregar pedidos DESPACHADOS."
-                    );
-                }
+            Response validacion =
+                    verificarAdministrador(usuario);
 
-            } else {
-
-                // Conservar acceso administrativo
-                Response validacion =
-                        verificarAdministrador(usuario);
-
-                if (validacion != null) {
-                    return validacion;
-                }
+            if (validacion != null) {
+                return validacion;
             }
 
-            // Ejecutar operacion de entrega
-            // mediante el manager y Oracle
-            Map<String, Object> resultado =
-                    manager.entregarPedido(id);
-
-            return respuestaOperacion(
-                    resultado,
-                    Response.Status.OK
-            );
-
-        } catch (Exception e) {
-            return errorInterno(e);
+            resultado = manager.entregarPedido(id);
         }
+
+        return respuestaOperacion(
+                resultado,
+                Response.Status.OK
+        );
+
+    } catch (Exception e) {
+        return errorInterno(e);
     }
+}
+
 
     // ==============================================
     // 12. CANCELAR PEDIDO
