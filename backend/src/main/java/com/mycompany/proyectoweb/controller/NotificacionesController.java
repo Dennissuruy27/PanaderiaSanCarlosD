@@ -7,6 +7,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
+import com.mycompany.proyectoweb.config.FirebaseConfig;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.Timestamp;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.GET;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -206,4 +214,137 @@ public class NotificacionesController {
             );
         }
     }
+
+    
+@GET
+@Path("alertas")
+public Response consultarAlertas() {
+
+    Integer administrador = obtenerAdministrador();
+
+    if (administrador == null) {
+        return error(
+                Response.Status.FORBIDDEN,
+                "Solo el administrador puede consultar las alertas."
+        );
+    }
+
+    try {
+
+        List<Map<String, Object>> alertas =
+                new ArrayList<>();
+
+        for (QueryDocumentSnapshot documento :
+                FirebaseConfig.getFirestore()
+                        .collection("estados_alertas_inventario")
+                        .get()
+                        .get()
+                        .getDocuments()) {
+
+            Map<String, Object> alerta =
+                    new HashMap<>();
+
+            alerta.put(
+                    "id",
+                    documento.getId()
+            );
+
+            alerta.put(
+                    "nombreProducto",
+                    documento.getString("nombreProducto")
+            );
+
+            alerta.put(
+                    "ubicacion",
+                    documento.getString("ubicacion")
+            );
+
+            Number existencia =
+                    (Number) documento.get("existencia");
+
+            Number minima =
+                    (Number) documento.get("existenciaMinima");
+
+            alerta.put(
+                    "existencia",
+                    existencia == null
+                            ? 0
+                            : existencia.doubleValue()
+            );
+
+            alerta.put(
+                    "existenciaMinima",
+                    minima == null
+                            ? 0
+                            : minima.doubleValue()
+            );
+
+            alerta.put(
+                    "unidadMedida",
+                    documento.getString("unidadMedida")
+            );
+
+            alerta.put(
+                    "activa",
+                    Boolean.TRUE.equals(
+                            documento.getBoolean("activa")
+                    )
+            );
+
+            Timestamp fecha =
+                    documento.getTimestamp("ultimaRevision");
+
+            alerta.put(
+                    "ultimaRevision",
+                    fecha == null
+                            ? ""
+                            : fecha.toDate()
+                                    .toInstant()
+                                    .toString()
+            );
+
+            alertas.add(alerta);
+        }
+
+        // Mostrar primero las alertas activas.
+        alertas.sort((a, b) ->
+                Boolean.compare(
+                        Boolean.TRUE.equals(b.get("activa")),
+                        Boolean.TRUE.equals(a.get("activa"))
+                )
+        );
+
+        int activas = 0;
+
+        for (Map<String, Object> alerta : alertas) {
+            if (Boolean.TRUE.equals(alerta.get("activa"))) {
+                activas++;
+            }
+        }
+
+        Map<String, Object> respuesta =
+                new HashMap<>();
+
+        respuesta.put("estado", "OK");
+        respuesta.put("alertas", alertas);
+        respuesta.put("total", alertas.size());
+        respuesta.put("activas", activas);
+        respuesta.put(
+                "recuperadas",
+                alertas.size() - activas
+        );
+
+        return Response.ok(respuesta).build();
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+        return error(
+                Response.Status.INTERNAL_SERVER_ERROR,
+                "No se pudieron consultar las alertas."
+            );
+        }
+    }
+
 }
