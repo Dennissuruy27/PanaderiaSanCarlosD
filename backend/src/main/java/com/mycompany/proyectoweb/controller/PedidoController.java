@@ -42,7 +42,7 @@ public class PedidoController {
     private HttpServletRequest request;
 
     // ==============================================
-    // USUARIO AUTENTICADO
+    // CLASE INTERNA: USUARIO AUTENTICADO
     // ==============================================
     private static class UsuarioSesion {
 
@@ -50,11 +50,14 @@ public class PedidoController {
         final int idSucursal;
         final String rol;
 
-        UsuarioSesion(int idUsuario, int idSucursal,
-                      String rol) {
+        UsuarioSesion(
+                int idUsuario,
+                int idSucursal,
+                String rol) {
 
             this.idUsuario = idUsuario;
             this.idSucursal = idSucursal;
+
             this.rol = rol == null
                     ? ""
                     : rol.trim().toUpperCase();
@@ -74,7 +77,7 @@ public class PedidoController {
     }
 
     // ==============================================
-    // OBTENER USUARIO DE LA SESION HTTP
+    // OBTENER USUARIO DESDE SESION HTTP
     // ==============================================
     private UsuarioSesion obtenerUsuarioSesion() {
 
@@ -215,12 +218,12 @@ public class PedidoController {
             );
         }
 
-        // ADMIN puede acceder a todas las sucursales
+        // ADMIN: acceso a todas las sucursales
         if (usuario.esAdmin()) {
             return null;
         }
 
-        // SUCURSAL solamente a la propia
+        // SUCURSAL: acceso solo a su sucursal
         if (usuario.idSucursal != idSucursal) {
             return error(
                     Response.Status.FORBIDDEN,
@@ -265,7 +268,7 @@ public class PedidoController {
     }
 
     // ==============================================
-    // 1. CONSULTAR TODOS LOS PEDIDOS
+    // 1. CONSULTAR PEDIDOS
     // GET /api/pedidos
     // ==============================================
     @GET
@@ -282,7 +285,6 @@ public class PedidoController {
         try {
 
             if (usuario.esAdmin()) {
-
                 List<Pedido> pedidos =
                         manager.getPedidos();
 
@@ -367,7 +369,6 @@ public class PedidoController {
 
         try {
 
-            // El usuario se obtiene de la sesion
             pedido.setIdUsuario(usuario.idUsuario);
 
             Map<String, Object> resultado =
@@ -384,7 +385,7 @@ public class PedidoController {
     }
 
     // ==============================================
-    // 4. AGREGAR PRODUCTO A UN PEDIDO
+    // 4. AGREGAR PRODUCTO AL PEDIDO
     // POST /api/pedidos/{id}/detalle
     // ==============================================
     @POST
@@ -425,7 +426,10 @@ public class PedidoController {
             }
 
             Map<String, Object> resultado =
-                    manager.agregarDetallePedido(id, detalle);
+                    manager.agregarDetallePedido(
+                            id,
+                            detalle
+                    );
 
             return respuestaOperacion(
                     resultado,
@@ -467,8 +471,6 @@ public class PedidoController {
 
             if (usuario.esRepartidor()) {
 
-                // Consultar los pedidos que Oracle
-                // tiene asignados al usuario autenticado.
                 List<Pedido> asignados =
                         manager.getPedidosRepartidor(
                                 usuario.idUsuario
@@ -493,8 +495,6 @@ public class PedidoController {
 
             } else {
 
-                // ADMIN y SUCURSAL mantienen
-                // las validaciones anteriores.
                 Response validacion =
                         verificarAccesoPedido(usuario, id);
 
@@ -698,7 +698,9 @@ public class PedidoController {
     // ==============================================
     // 11. ENTREGAR PEDIDO
     // PUT /api/pedidos/{id}/entregar
-    // SOLO ADMIN
+    //
+    // ADMIN O REPARTIDOR ASIGNADO
+    // REPARTIDOR: SOLO DESPACHADO
     // ==============================================
     @PUT
     @Path("{id}/entregar")
@@ -707,11 +709,11 @@ public class PedidoController {
 
         UsuarioSesion usuario = obtenerUsuarioSesion();
 
-        Response validacion =
-                verificarAdministrador(usuario);
-
-        if (validacion != null) {
-            return validacion;
+        if (usuario == null) {
+            return error(
+                    Response.Status.UNAUTHORIZED,
+                    "Debes iniciar sesion."
+            );
         }
 
         if (id <= 0) {
@@ -720,6 +722,57 @@ public class PedidoController {
 
         try {
 
+            if (usuario.esRepartidor()) {
+
+                // Obtener pedidos del repartidor
+                // utilizando su ID de sesion.
+                List<Pedido> asignados =
+                        manager.getPedidosRepartidor(
+                                usuario.idUsuario
+                        );
+
+                Pedido pedidoAsignado = null;
+
+                for (Pedido pedido : asignados) {
+
+                    if (pedido.getIdPedido() == id) {
+                        pedidoAsignado = pedido;
+                        break;
+                    }
+                }
+
+                // Validar propiedad del pedido
+                if (pedidoAsignado == null) {
+
+                    return error(
+                            Response.Status.FORBIDDEN,
+                            "Este pedido no esta asignado a tu usuario."
+                    );
+                }
+
+                // Validar estado permitido
+                if (!"DESPACHADO".equalsIgnoreCase(
+                        pedidoAsignado.getEstado())) {
+
+                    return error(
+                            Response.Status.CONFLICT,
+                            "Solo puedes entregar pedidos DESPACHADOS."
+                    );
+                }
+
+            } else {
+
+                // Conservar acceso administrativo
+                Response validacion =
+                        verificarAdministrador(usuario);
+
+                if (validacion != null) {
+                    return validacion;
+                }
+            }
+
+            // Ejecutar operacion de entrega
+            // mediante el manager y Oracle
             Map<String, Object> resultado =
                     manager.entregarPedido(id);
 
@@ -854,7 +907,7 @@ public class PedidoController {
     }
 
     // ==============================================
-    // 14. CONSULTAR DISPONIBILIDAD DEL PEDIDO
+    // 14. CONSULTAR DISPONIBILIDAD
     // GET /api/pedidos/{id}/disponibilidad
     // ==============================================
     @GET
@@ -903,7 +956,10 @@ public class PedidoController {
             respuesta.put("idPedido", id);
             respuesta.put("disponible", disponible);
             respuesta.put("requiereProduccion", !disponible);
-            respuesta.put("cantidadTotalFaltante", totalFaltante);
+            respuesta.put(
+                    "cantidadTotalFaltante",
+                    totalFaltante
+            );
             respuesta.put("productos", productos);
             respuesta.put("estado", "OK");
 
@@ -990,7 +1046,7 @@ public class PedidoController {
     }
 
     // ==============================================
-    // 16. PEDIDOS DEL REPARTIDOR AUTENTICADO
+    // 16. PEDIDOS DEL REPARTIDOR
     // GET /api/pedidos/mis-pedidos
     // SOLO REPARTIDOR
     // ==============================================
@@ -1073,6 +1129,7 @@ public class PedidoController {
     // VALIDAR ID
     // ==============================================
     private Response idInvalido() {
+
         return error(
                 Response.Status.BAD_REQUEST,
                 "El ID del pedido debe ser mayor que cero."
@@ -1086,7 +1143,8 @@ public class PedidoController {
             Response.Status estado,
             String mensaje) {
 
-        Map<String, Object> respuesta = new HashMap<>();
+        Map<String, Object> respuesta =
+                new HashMap<>();
 
         respuesta.put("estado", "ERROR");
         respuesta.put("mensaje", mensaje);
@@ -1113,8 +1171,3 @@ public class PedidoController {
         );
     }
 }
-
-
-
-
-
