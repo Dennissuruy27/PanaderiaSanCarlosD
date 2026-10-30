@@ -173,6 +173,7 @@ public class NotificacionesInventarioManager {
                     new HashMap<>();
 
             datosEstado.put("activa", true);
+            datosEstado.put("unidadMedida", alerta.unidad);
             datosEstado.put("episodio", episodio);
             datosEstado.put("nombreProducto", alerta.nombre);
             datosEstado.put("ubicacion", alerta.ubicacion);
