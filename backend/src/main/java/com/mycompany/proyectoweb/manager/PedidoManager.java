@@ -5,6 +5,7 @@ import com.mycompany.proyectoweb.model.Pedido;
 import com.mycompany.proyectoweb.model.PedidoRequest;
 import com.mycompany.proyectoweb.model.PedidoDetalle;
 import com.mycompany.proyectoweb.model.PedidoDetalleRequest;
+import java.sql.PreparedStatement;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -520,6 +521,123 @@ public class PedidoManager {
         return resultado;
     }
 
+    //entregar pedido del repartidor
+public Map<String, Object> entregarPedidoRepartidor(
+        int idPedido,
+        int idRepartidor) throws Exception {
+
+    Map<String, Object> resultado = new HashMap<>();
+
+    if (idPedido <= 0 || idRepartidor <= 0) {
+        resultado.put("idSalida", -1);
+        resultado.put("mensaje", "Datos de entrega invalidos.");
+        return resultado;
+    }
+
+    try (Connection conexion =
+                 ConexionOracle.getConnection()) {
+
+        // Mantener la misma transaccion
+        // desde la validacion hasta la entrega.
+        conexion.setAutoCommit(false);
+
+        try {
+
+            String sql =
+                    "SELECT ID_REPARTIDOR, ESTADO " +
+                    "FROM PEDIDO " +
+                    "WHERE ID_PEDIDO = ? " +
+                    "FOR UPDATE";
+
+            try (PreparedStatement stmt =
+                         conexion.prepareStatement(sql)) {
+
+                stmt.setInt(1, idPedido);
+
+                try (ResultSet rs = stmt.executeQuery()) {
+
+                    if (!rs.next()) {
+                        conexion.rollback();
+                        resultado.put("idSalida", -1);
+                        resultado.put(
+                                "mensaje",
+                                "El pedido no existe."
+                        );
+                        return resultado;
+                    }
+
+                    int asignado =
+                            rs.getInt("ID_REPARTIDOR");
+
+                    boolean sinAsignacion = rs.wasNull();
+
+                    String estado =
+                            rs.getString("ESTADO");
+
+                    if (sinAsignacion ||
+                            asignado != idRepartidor) {
+
+                        conexion.rollback();
+                        resultado.put("idSalida", -1);
+                        resultado.put(
+                                "mensaje",
+                                "El pedido no esta asignado "
+                                        + "a este repartidor."
+                        );
+                        return resultado;
+                    }
+
+                    if (!"DESPACHADO".equalsIgnoreCase(
+                            estado)) {
+
+                        conexion.rollback();
+                        resultado.put("idSalida", -1);
+                        resultado.put(
+                                "mensaje",
+                                "Solo se pueden entregar "
+                                        + "pedidos DESPACHADOS."
+                        );
+                        return resultado;
+                    }
+                }
+            }
+
+            // Importante: usar la misma conexion.
+            // El procedimiento actual registra inventario
+            // y realiza COMMIT o ROLLBACK en Oracle.
+            String llamada =
+                    "{call PKG_PEDIDOS.ENTREGAR_PEDIDO(?, ?, ?)}";
+
+            try (CallableStatement stmt =
+                         conexion.prepareCall(llamada)) {
+
+                stmt.setInt(1, idPedido);
+                stmt.registerOutParameter(2, Types.NUMERIC);
+                stmt.registerOutParameter(3, Types.VARCHAR);
+
+                stmt.execute();
+
+                resultado.put(
+                        "idSalida",
+                        stmt.getInt(2)
+                );
+
+                resultado.put(
+                        "mensaje",
+                        stmt.getString(3)
+                );
+            }
+
+            return resultado;
+
+        } catch (Exception e) {
+            conexion.rollback();
+            throw e;
+        }
+    }
+}
+
+
     // =========================================================
     // METODO PRIVADO: MAPEAR PEDIDO
     //
@@ -572,5 +690,7 @@ public class PedidoManager {
 
         return pedido;
     }
+
+    
 }
 
